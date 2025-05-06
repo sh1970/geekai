@@ -137,13 +137,15 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 	salt := utils.RandString(8)
 	user := model.User{
-		Username:  data.Username,
-		Password:  utils.GenPassword(data.Password, salt),
-		Avatar:    "/images/avatar/user.png",
-		Salt:      salt,
-		Status:    true,
-		ChatRoles: utils.JsonEncode([]string{"gpt"}), // 默认只订阅通用助手角色
-		Power:     h.App.SysConfig.InitPower,
+		Username:   data.Username,
+		Password:   utils.GenPassword(data.Password, salt),
+		Avatar:     "/images/avatar/user.png",
+		Salt:       salt,
+		Status:     true,
+		ChatRoles:  utils.JsonEncode([]string{"gpt"}), // 默认只订阅通用助手角色
+		ChatConfig: "{}",
+		ChatModels: "{}",
+		Power:      h.App.SysConfig.InitPower,
 	}
 
 	// check if the username is existing

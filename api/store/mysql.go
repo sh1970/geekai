@@ -9,11 +9,12 @@ package store
 
 import (
 	"geekai/core/types"
+	"time"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"time"
 )
 
 func NewGormConfig() *gorm.Config {
@@ -36,9 +37,9 @@ func NewMysql(config *gorm.Config, appConfig *types.AppConfig) (*gorm.DB, error)
 	if err != nil {
 		return nil, err
 	}
+
 	sqlDB.SetMaxIdleConns(32)
 	sqlDB.SetMaxOpenConns(512)
 	sqlDB.SetConnMaxLifetime(time.Hour)
-
 	return db, nil
 }
