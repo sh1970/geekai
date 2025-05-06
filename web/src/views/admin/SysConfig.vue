@@ -57,6 +57,10 @@
                   <el-input v-model="system['copyright']" placeholder="更改此选项需要获取 License 授权" />
                 </el-form-item>
 
+                <el-form-item label="默认昵称" prop="default_nickname">
+                  <el-input v-model="system['default_nickname']" placeholder="默认昵称" />
+                </el-form-item>
+
                 <el-form-item label="ICP 备案号" prop="icp">
                   <el-input v-model="system['icp']" placeholder="请输入 ICP 备案号" />
                 </el-form-item>
