@@ -172,10 +172,15 @@ func (h *UserHandler) Register(c *gin.Context) {
 	if data.InviteCode != "" {
 		user.Power += h.App.SysConfig.InvitePower
 	}
+
 	if h.licenseService.GetLicense().Configs.DeCopy {
 		user.Nickname = fmt.Sprintf("用户@%d", utils.RandomNumber(6))
 	} else {
-		user.Nickname = fmt.Sprintf("极客学长@%d", utils.RandomNumber(6))
+		defaultNickname := h.App.SysConfig.DefaultNickname
+		if defaultNickname == "" {
+			defaultNickname = "极客学长"
+		}
+		user.Nickname = fmt.Sprintf("%s@%d", defaultNickname, utils.RandomNumber(6))
 	}
 
 	tx := h.DB.Begin()

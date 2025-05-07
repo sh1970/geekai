@@ -293,6 +293,7 @@ const models = ref([
   { label: "v3.0", value: "chirp-v3-0" },
   { label: "v3.5", value: "chirp-v3-5" },
   { label: "v4.0", value: "chirp-v4" },
+  { label: "v4.5", value: "chirp-auk" },
 ]);
 const tags = ref([
   { label: "女声", value: "female vocals" },
@@ -313,7 +314,7 @@ const tags = ref([
   { label: "嘻哈", value: "hip hop" },
 ]);
 const data = ref({
-  model: "chirp-v3-0",
+  model: "chirp-auk",
   tags: "",
   lyrics: "",
   prompt: "",
