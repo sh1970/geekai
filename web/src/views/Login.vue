@@ -40,11 +40,13 @@
                 @keyup="handleKeyup"
               />
             </el-form-item>
-            <el-form-item label="" prop="agreement" :class="{'agreement-error': agreementError}">
-              <div class="agreement-box" :class="{'shake': isShaking}">
+            <el-form-item label="" prop="agreement" :class="{ 'agreement-error': agreementError }">
+              <div class="agreement-box" :class="{ shake: isShaking }">
                 <el-checkbox v-model="ruleForm.agreement" @change="handleAgreementChange">
                   我已阅读并同意
-                  <span class="agreement-link" @click.stop.prevent="openAgreement">《用户协议》</span>
+                  <span class="agreement-link" @click.stop.prevent="openAgreement"
+                    >《用户协议》</span
+                  >
                   和
                   <span class="agreement-link" @click.stop.prevent="openPrivacy">《隐私政策》</span>
                 </el-checkbox>
@@ -73,10 +75,10 @@ import { useSharedStore } from '@/store/sharedata'
 import { setRoute } from '@/store/system'
 import { showMessageError } from '@/utils/dialog'
 import { httpGet, httpPost } from '@/utils/http'
-import { onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import MarkdownIt from 'markdown-it'
+import { onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import AccountTop from '@/components/AccountTop.vue'
 import Captcha from '@/components/Captcha.vue'
@@ -106,7 +108,7 @@ const privacyContent = ref('')
 const md = new MarkdownIt({
   html: true,
   linkify: true,
-  typographer: true
+  typographer: true,
 })
 
 onMounted(() => {
@@ -138,12 +140,14 @@ onMounted(() => {
       if (res.data && res.data.content) {
         agreementContent.value = res.data.content
       } else {
-        agreementContent.value = '# 用户协议\n\n用户在使用本服务前应当阅读并同意本协议。本协议内容包括协议正文及所有本平台已经发布的或将来可能发布的各类规则。所有规则为本协议不可分割的组成部分，与协议正文具有同等法律效力。'
+        agreementContent.value =
+          '用户在使用本服务前应当阅读并同意本协议。本协议内容包括协议正文及所有本平台已经发布的或将来可能发布的各类规则。所有规则为本协议不可分割的组成部分，与协议正文具有同等法律效力。'
       }
     })
     .catch((e) => {
       console.warn(e)
-      agreementContent.value = '# 用户协议\n\n用户在使用本服务前应当阅读并同意本协议。本协议内容包括协议正文及所有本平台已经发布的或将来可能发布的各类规则。所有规则为本协议不可分割的组成部分，与协议正文具有同等法律效力。'
+      agreementContent.value =
+        '用户在使用本服务前应当阅读并同意本协议。本协议内容包括协议正文及所有本平台已经发布的或将来可能发布的各类规则。所有规则为本协议不可分割的组成部分，与协议正文具有同等法律效力。'
     })
 
   // 获取隐私政策
@@ -152,12 +156,14 @@ onMounted(() => {
       if (res.data && res.data.content) {
         privacyContent.value = res.data.content
       } else {
-        privacyContent.value = '# 隐私政策\n\n我们非常重视用户的隐私和个人信息保护。您在使用我们的产品与服务时，我们可能会收集和使用您的相关信息。我们希望通过本《隐私政策》向您说明我们在收集和使用您相关信息时对应的处理规则。'
+        privacyContent.value =
+          '我们非常重视用户的隐私和个人信息保护。您在使用我们的产品与服务时，我们可能会收集和使用您的相关信息。我们希望通过本《隐私政策》向您说明我们在收集和使用您相关信息时对应的处理规则。'
       }
     })
     .catch((e) => {
       console.warn(e)
-      privacyContent.value = '# 隐私政策\n\n我们非常重视用户的隐私和个人信息保护。您在使用我们的产品与服务时，我们可能会收集和使用您的相关信息。我们希望通过本《隐私政策》向您说明我们在收集和使用您相关信息时对应的处理规则。'
+      privacyContent.value =
+        '我们非常重视用户的隐私和个人信息保护。您在使用我们的产品与服务时，我们可能会收集和使用您的相关信息。我们希望通过本《隐私政策》向您说明我们在收集和使用您相关信息时对应的处理规则。'
     })
 
   getLicenseInfo()
@@ -200,7 +206,7 @@ const login = async function () {
     showMessageError('请先阅读并同意用户协议')
     return
   }
-  
+
   await ruleFormRef.value.validate(async (valid) => {
     if (valid) {
       if (enableVerify.value) {
@@ -252,7 +258,7 @@ const openAgreement = () => {
     {
       confirmButtonText: '我已阅读',
       dangerouslyUseHTMLString: true,
-      callback: () => {}
+      callback: () => {},
     }
   )
 }
@@ -265,7 +271,7 @@ const openPrivacy = () => {
     {
       confirmButtonText: '我已阅读',
       dangerouslyUseHTMLString: true,
-      callback: () => {}
+      callback: () => {},
     }
   )
 }
@@ -287,7 +293,7 @@ const openPrivacy = () => {
     .el-checkbox__input
       .el-checkbox__inner
         border-color: #F56C6C !important
-  
+
 .shake
   animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both
 
@@ -326,7 +332,8 @@ const openPrivacy = () => {
   line-height: 1.5;
 }
 
-.markdown-content ul, .markdown-content ol {
+.markdown-content ul,
+.markdown-content ol {
   padding-left: 20px;
   margin-bottom: 10px;
 }

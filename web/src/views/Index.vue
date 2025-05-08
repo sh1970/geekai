@@ -34,6 +34,15 @@
               >登录/注册</el-button
             >
           </span>
+          <span v-if="isLogin">
+            <el-button
+              @click="logout"
+              class="btn-go animate__animated animate__pulse animate__infinite"
+              round
+            >
+              退出登录
+            </el-button>
+          </span>
         </div>
       </el-menu>
     </div>
@@ -195,6 +204,15 @@ const rainbowColor = (index) => {
   const hue = (index * 40) % 360 // 每个字符间隔40度，形成彩虹色
   return `hsl(${hue}, 90%, 50%)` // 色调(hue)，饱和度(70%)，亮度(50%)
 }
+
+httpGet('/api/user/logout')
+  .then(() => {
+    removeUserToken()
+    router.push('/login')
+  })
+  .catch(() => {
+    ElMessage.error('注销失败！')
+  })
 </script>
 
 <style lang="stylus" scoped>
