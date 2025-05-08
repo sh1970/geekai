@@ -311,6 +311,25 @@
           </div>
         </el-form-item>
       </el-tab-pane>
+
+      <el-tab-pane label="用户协议" name="agreement">
+        <md-editor class="mgb20" v-model="agreement" :theme="store.theme" @on-upload-img="onUploadImg" />
+        <el-form-item>
+          <div style="padding-top: 10px; margin-left: 150px">
+            <el-button type="primary" @click="save('agreement')">保存</el-button>
+          </div>
+        </el-form-item>
+      </el-tab-pane>
+
+      <el-tab-pane label="隐私声明" name="privacy">
+        <md-editor class="mgb20" v-model="privacy" :theme="store.theme" @on-upload-img="onUploadImg" />
+        <el-form-item>
+          <div style="padding-top: 10px; margin-left: 150px">
+            <el-button type="primary" @click="save('privacy')">保存</el-button>
+          </div>
+        </el-form-item>
+      </el-tab-pane>
+      
       <el-tab-pane label="思维导图" name="mark_map">
         <md-editor class="mgb20" :theme="store.theme" v-model="system['mark_map_text']" @on-upload-img="onUploadImg" />
         <el-form-item>
@@ -418,6 +437,8 @@ const loading = ref(true);
 const systemFormRef = ref(null);
 const models = ref([]);
 const notice = ref("");
+const agreement = ref("");
+const privacy = ref("");
 const license = ref({ is_active: false });
 const menus = ref([]);
 const mjModels = ref([
@@ -458,6 +479,24 @@ onMounted(() => {
     })
     .catch((e) => {
       ElMessage.error("公告信息失败: " + e.message);
+    });
+
+  // 加载用户协议
+  httpGet("/api/admin/config/get?key=agreement")
+    .then((res) => {
+      agreement.value = res.data["content"] || '';
+    })
+    .catch((e) => {
+      ElMessage.error("加载用户协议失败: " + e.message);
+    });
+    
+  // 加载隐私政策
+  httpGet("/api/admin/config/get?key=privacy")
+    .then((res) => {
+      privacy.value = res.data["content"] || '';
+    })
+    .catch((e) => {
+      ElMessage.error("加载隐私政策失败: " + e.message);
     });
 
   httpGet("/api/admin/model/list")
@@ -511,6 +550,22 @@ const save = function (key) {
     });
   } else if (key === "notice") {
     httpPost("/api/admin/config/update", { key: key, config: { content: notice.value, updated: true } })
+      .then(() => {
+        ElMessage.success("操作成功！");
+      })
+      .catch((e) => {
+        ElMessage.error("操作失败：" + e.message);
+      });
+  } else if (key === "agreement") {
+    httpPost("/api/admin/config/update", { key: key, config: { content: agreement.value, updated: true } })
+      .then(() => {
+        ElMessage.success("操作成功！");
+      })
+      .catch((e) => {
+        ElMessage.error("操作失败：" + e.message);
+      });
+  } else if (key === "privacy") {
+    httpPost("/api/admin/config/update", { key: key, config: { content: privacy.value, updated: true } })
       .then(() => {
         ElMessage.success("操作成功！");
       })

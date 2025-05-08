@@ -29,7 +29,9 @@
             </div>
           </div>
         </div>
-        <div class="content" v-html="content"></div>
+        <div class="content position-relative">
+          <div v-html="content"></div>
+        </div>
         <div class="bar" v-if="data.created_at > 0">
           <span class="bar-item"
             ><el-icon><Clock /></el-icon> {{ dateFormat(data.created_at) }}</span
@@ -71,7 +73,9 @@
           </div>
         </div>
         <div class="content-wrapper">
-          <div class="content" v-html="content"></div>
+          <div class="content position-relative">
+            <div v-html="content"></div>
+          </div>
         </div>
         <div class="bar" v-if="data.created_at > 0">
           <span class="bar-item"
@@ -88,7 +92,7 @@
 import { FormatFileSize, GetFileIcon, GetFileType } from '@/store/system'
 import { httpPost } from '@/utils/http'
 import { dateFormat, isImage, processPrompt } from '@/utils/libs'
-import { Clock } from '@element-plus/icons-vue'
+import { Clock, Edit } from '@element-plus/icons-vue'
 import hl from 'highlight.js'
 import MarkdownIt from 'markdown-it'
 import emoji from 'markdown-it-emoji'
@@ -143,6 +147,9 @@ const props = defineProps({
 const finalTokens = ref(props.data.tokens)
 const content = ref(processPrompt(props.data.content))
 const files = ref([])
+
+// 定义emit事件
+const emit = defineEmits(['edit'])
 
 onMounted(() => {
   processFiles()
@@ -474,5 +481,40 @@ const isExternalImg = (link, files) => {
 
   }
 
+}
+
+.operations
+  display none
+  position absolute
+  right 5px
+  top 5px
+
+.text-box
+  &:hover
+    .operations
+      display flex
+      gap 5px
+
+.op-edit
+  cursor pointer
+  color #409eff
+  font-size 16px
+
+  &:hover
+    color darken(#409eff, 10%)
+
+.position-relative {
+  position: relative;
+}
+
+.action-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+}
+
+.content:hover .action-buttons {
+  display: block;
 }
 </style>
