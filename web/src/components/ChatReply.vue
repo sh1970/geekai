@@ -26,7 +26,7 @@
               </el-tooltip>
             </span>
             <span v-if="!readOnly" class="flex">
-              <span class="bar-item" @click="reGenerate(data.prompt)">
+              <span class="bar-item" @click="reGenerate()">
                 <el-tooltip class="box-item" effect="dark" content="重新生成" placement="bottom">
                   <el-icon><Refresh /></el-icon>
                 </el-tooltip>
@@ -92,7 +92,7 @@
               </el-tooltip>
             </span>
             <span v-if="!readOnly" class="flex">
-              <span class="bar-item bg" @click="reGenerate(data.prompt)">
+              <span class="bar-item bg" @click="reGenerate()">
                 <el-tooltip class="box-item" effect="dark" content="重新生成" placement="bottom">
                   <el-icon><Refresh /></el-icon>
                 </el-tooltip>
@@ -233,9 +233,8 @@ const stopSynthesis = () => {
 }
 
 // 重新生成
-const reGenerate = (prompt) => {
-  console.log(prompt)
-  emits('regen', prompt)
+const reGenerate = () => {
+  emits('regen')
 }
 </script>
 
