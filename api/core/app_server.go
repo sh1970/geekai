@@ -112,6 +112,12 @@ func (s *AppServer) Run(db *gorm.DB) error {
 	if db.Migrator().HasColumn(&model.User{}, "chat_config") {
 		db.Migrator().DropColumn(&model.User{}, "chat_config")
 	}
+	if db.Migrator().HasColumn(&model.ChatModel{}, "category") {
+		db.Migrator().DropColumn(&model.ChatModel{}, "category")
+	}
+	if db.Migrator().HasColumn(&model.ChatModel{}, "description") {
+		db.Migrator().DropColumn(&model.ChatModel{}, "description")
+	}
 
 	logger.Info("Database tables migrated successfully")
 
