@@ -205,14 +205,16 @@ const rainbowColor = (index) => {
   return `hsl(${hue}, 90%, 50%)` // 色调(hue)，饱和度(70%)，亮度(50%)
 }
 
-httpGet('/api/user/logout')
-  .then(() => {
-    removeUserToken()
-    router.push('/login')
-  })
-  .catch(() => {
-    ElMessage.error('注销失败！')
-  })
+const logout = function () {
+  httpGet('/api/user/logout')
+    .then(() => {
+      removeUserToken()
+      router.push('/login')
+    })
+    .catch(() => {
+      ElMessage.error('注销失败！')
+    })
+}
 </script>
 
 <style lang="stylus" scoped>
