@@ -1,6 +1,6 @@
-const { defineConfig } = require("@vue/cli-service");
-const path = require("path");
-let webpack = require("webpack");
+const { defineConfig } = require('@vue/cli-service')
+const path = require('path')
+let webpack = require('webpack')
 module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false, //关闭eslint校验
@@ -14,26 +14,31 @@ module.exports = defineConfig({
     plugins: [new webpack.optimize.MinChunkSizePlugin({ minChunkSize: 10000 })],
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "src"),
+        '@': path.resolve(__dirname, 'src'),
       },
     },
   },
 
-  publicPath: "/",
+  publicPath: '/',
 
-  outputDir: "dist",
-  crossorigin: "anonymous",
+  outputDir: 'dist',
+  crossorigin: 'anonymous',
   devServer: {
     client: {
-      overlay: false // 关闭错误覆盖层
+      overlay: false, // 关闭错误覆盖层
     },
-    allowedHosts: "all",
+    allowedHosts: 'all',
     port: 8888,
     proxy: {
-      "/static/upload/": {
+      '/api': {
+        target: process.env.VUE_APP_API_HOST,
+        changeOrigin: true,
+        ws: true,
+      },
+      '/static/upload/': {
         target: process.env.VUE_APP_API_HOST,
         changeOrigin: true,
       },
     },
   },
-});
+})
