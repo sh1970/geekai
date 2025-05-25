@@ -104,12 +104,12 @@ func (h *WebsocketHandler) Client(c *gin.Context) {
 			}
 			// if the role bind a model_id, use role's bind model_id
 			if chatRole.ModelId > 0 {
-				chatMessage.RoleId = int(chatRole.ModelId)
+				chatMessage.ModelId = int(chatRole.ModelId)
 			}
 			// get model info
 			var chatModel model.ChatModel
 			err = h.DB.Where("id", chatMessage.ModelId).First(&chatModel).Error
-			if err != nil || chatModel.Enabled == false {
+			if err != nil || !chatModel.Enabled {
 				utils.SendAndFlush(client, "当前AI模型暂未启用，请更换模型后再发起对话！！！")
 				continue
 			}
@@ -130,6 +130,7 @@ func (h *WebsocketHandler) Client(c *gin.Context) {
 			session.ChatId = chatMessage.ChatId
 			session.Tools = chatMessage.Tools
 			session.Stream = chatMessage.Stream
+			session.Model.KeyId = chatMessage.ModelId
 			// 复制模型数据
 			err = utils.CopyObject(chatModel, &session.Model)
 			if err != nil {

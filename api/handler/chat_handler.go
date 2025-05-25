@@ -71,7 +71,7 @@ func (h *ChatHandler) sendMessage(ctx context.Context, session *types.ChatSessio
 		return errors.New("User 对象转换失败，" + err.Error())
 	}
 
-	if userVo.Status == false {
+	if !userVo.Status {
 		return errors.New("您的账号已经被禁用，如果疑问，请联系管理员！")
 	}
 
@@ -200,7 +200,7 @@ func (h *ChatHandler) sendMessage(ctx context.Context, session *types.ChatSessio
 	// 如果不是逆向模型，则提取文件内容
 	if len(files) > 0 && !(session.Model.Value == "gpt-4-all" ||
 		strings.HasPrefix(session.Model.Value, "gpt-4-gizmo") ||
-		strings.HasSuffix(session.Model.Value, "claude-3")) {
+		strings.HasPrefix(session.Model.Value, "claude-3")) {
 		contents := make([]string, 0)
 		var file model.File
 		for _, v := range files {
@@ -327,11 +327,10 @@ func (h *ChatHandler) doRequest(ctx context.Context, req types.ApiRequest, sessi
 	// if the chat model bind a KEY, use it directly
 	if session.Model.KeyId > 0 {
 		h.DB.Where("id", session.Model.KeyId).Find(apiKey)
-	}
-	// use the last unused key
-	if apiKey.Id == 0 {
+	} else { // use the last unused key
 		h.DB.Where("type", "chat").Where("enabled", true).Order("last_used_at ASC").First(apiKey)
 	}
+
 	if apiKey.Id == 0 {
 		return nil, errors.New("no available key, please import key")
 	}
