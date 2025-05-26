@@ -5,7 +5,10 @@
       <div class="text-line">
         <van-row :gutter="10">
           <van-col :span="4" v-for="item in rates" :key="item.value">
-            <div :class="item.value === params.rate ? 'rate active' : 'rate'" @click="changeRate(item)">
+            <div
+              :class="item.value === params.rate ? 'rate active' : 'rate'"
+              @click="changeRate(item)"
+            >
               <div class="icon">
                 <van-image :src="item.img" fit="cover"></van-image>
               </div>
@@ -18,7 +21,10 @@
       <div class="text-line">
         <van-row :gutter="10">
           <van-col :span="8" v-for="item in models" :key="item.value">
-            <div :class="item.value === params.model ? 'model active' : 'model'" @click="changeModel(item)">
+            <div
+              :class="item.value === params.model ? 'model active' : 'model'"
+              @click="changeModel(item)"
+            >
               <div class="icon">
                 <van-image :src="item.img" fit="cover"></van-image>
               </div>
@@ -32,7 +38,12 @@
       <div class="text-line">
         <van-field label="创意度">
           <template #input>
-            <van-slider v-model.number="params.chaos" :max="100" :step="1" @update:model-value="showToast('当前值：' + params.chaos)" />
+            <van-slider
+              v-model.number="params.chaos"
+              :max="100"
+              :step="1"
+              @update:model-value="showToast('当前值：' + params.chaos)"
+            />
           </template>
         </van-field>
       </div>
@@ -40,7 +51,12 @@
       <div class="text-line">
         <van-field label="风格化">
           <template #input>
-            <van-slider v-model.number="params.stylize" :max="1000" :step="1" @update:model-value="showToast('当前值：' + params.stylize)" />
+            <van-slider
+              v-model.number="params.stylize"
+              :max="1000"
+              :step="1"
+              @update:model-value="showToast('当前值：' + params.stylize)"
+            />
           </template>
         </van-field>
       </div>
@@ -85,14 +101,27 @@
             <div class="text-line">
               <van-field label="垫图权重">
                 <template #input>
-                  <van-slider v-model.number="params.iw" :max="1" :step="0.01" @update:model-value="showToast('当前值：' + params.iw)" />
+                  <van-slider
+                    v-model.number="params.iw"
+                    :max="1"
+                    :step="0.01"
+                    @update:model-value="showToast('当前值：' + params.iw)"
+                  />
                 </template>
               </van-field>
             </div>
 
-            <div class="tip-text">提示：只有于 niji6 和 v6 模型支持一致性功能，如果选择其他模型此功能将会生成失败。</div>
+            <div class="tip-text">
+              提示：只有于 niji6 和 v6 模型支持一致性功能，如果选择其他模型此功能将会生成失败。
+            </div>
             <van-cell-group>
-              <van-field v-model="params.cref" center clearable label="角色一致性" placeholder="请输入图片URL或者上传图片">
+              <van-field
+                v-model="params.cref"
+                center
+                clearable
+                label="角色一致性"
+                placeholder="请输入图片URL或者上传图片"
+              >
                 <template #button>
                   <van-uploader @click="beforeUpload('cref')" :after-read="uploadImg">
                     <van-button size="mini" type="primary" icon="plus" />
@@ -102,7 +131,13 @@
             </van-cell-group>
 
             <van-cell-group>
-              <van-field v-model="params.sref" center clearable label="风格一致性" placeholder="请输入图片URL或者上传图片">
+              <van-field
+                v-model="params.sref"
+                center
+                clearable
+                label="风格一致性"
+                placeholder="请输入图片URL或者上传图片"
+              >
                 <template #button>
                   <van-uploader @click="beforeUpload('sref')" :after-read="uploadImg">
                     <van-button size="mini" type="primary" icon="plus" />
@@ -114,13 +149,20 @@
             <div class="text-line">
               <van-field label="一致性权重">
                 <template #input>
-                  <van-slider v-model.number="params.cw" :max="100" :step="1" @update:model-value="showToast('当前值：' + params.cw)" />
+                  <van-slider
+                    v-model.number="params.cw"
+                    :max="100"
+                    :step="1"
+                    @update:model-value="showToast('当前值：' + params.cw)"
+                  />
                 </template>
               </van-field>
             </div>
           </van-tab>
           <van-tab title="融图" name="blend">
-            <div class="tip-text">请上传两张以上的图片，最多不超过五张，超过五张图片请使用图生图功能。</div>
+            <div class="tip-text">
+              请上传两张以上的图片，最多不超过五张，超过五张图片请使用图生图功能。
+            </div>
             <div class="text-line">
               <van-uploader v-model="imgList" :after-read="uploadImg" />
             </div>
@@ -137,13 +179,24 @@
       <div class="text-line">
         <van-collapse v-model="activeColspan">
           <van-collapse-item title="反向提示词" name="neg_prompt">
-            <van-field v-model="params.neg_prompt" rows="3" maxlength="2000" autosize type="textarea" placeholder="不想出现在图片上的元素(例如：树，建筑)" />
+            <van-field
+              v-model="params.neg_prompt"
+              rows="3"
+              maxlength="2000"
+              autosize
+              type="textarea"
+              placeholder="不想出现在图片上的元素(例如：树，建筑)"
+            />
           </van-collapse-item>
         </van-collapse>
       </div>
 
       <div class="text-line pt-6">
-        <el-tag>绘图消耗{{ mjPower }}算力，U/V 操作消耗{{ mjActionPower }}算力，当前算力：{{ power }}</el-tag>
+        <el-tag
+          >绘图消耗{{ mjPower }}算力，U/V 操作消耗{{ mjActionPower }}算力，当前算力：{{
+            power
+          }}</el-tag
+        >
       </div>
 
       <div class="text-line">
@@ -164,7 +217,14 @@
           <div v-if="item.progress > 0">
             <van-image src="/images/img-holder.png"></van-image>
             <div class="progress">
-              <van-circle v-model:current-rate="item.progress" :rate="item.progress" :speed="100" :text="item.progress + '%'" :stroke-width="60" size="90px" />
+              <van-circle
+                v-model:current-rate="item.progress"
+                :rate="item.progress"
+                :speed="100"
+                :text="item.progress + '%'"
+                :stroke-width="60"
+                size="90px"
+              />
             </div>
           </div>
 
@@ -204,7 +264,13 @@
               </div>
             </div>
             <div class="job-item" v-else>
-              <van-image :src="item['thumb_url']" :class="item['can_opt'] ? '' : 'upscale'" lazy-load @click="imageView(item)" fit="cover">
+              <van-image
+                :src="item['thumb_url']"
+                :class="item['can_opt'] ? '' : 'upscale'"
+                lazy-load
+                @click="imageView(item)"
+                fit="cover"
+              >
                 <template v-slot:loading>
                   <van-loading type="spinner" size="20" />
                 </template>
@@ -220,16 +286,29 @@
                   <van-grid-item><a @click="upscale(2, item)" class="opt-btn">U2</a></van-grid-item>
                   <van-grid-item><a @click="upscale(3, item)" class="opt-btn">U3</a></van-grid-item>
                   <van-grid-item><a @click="upscale(4, item)" class="opt-btn">U4</a></van-grid-item>
-                  <van-grid-item><a @click="variation(1, item)" class="opt-btn">V1</a></van-grid-item>
-                  <van-grid-item><a @click="variation(2, item)" class="opt-btn">V2</a></van-grid-item>
-                  <van-grid-item><a @click="variation(3, item)" class="opt-btn">V3</a></van-grid-item>
-                  <van-grid-item><a @click="variation(4, item)" class="opt-btn">V4</a></van-grid-item>
+                  <van-grid-item
+                    ><a @click="variation(1, item)" class="opt-btn">V1</a></van-grid-item
+                  >
+                  <van-grid-item
+                    ><a @click="variation(2, item)" class="opt-btn">V2</a></van-grid-item
+                  >
+                  <van-grid-item
+                    ><a @click="variation(3, item)" class="opt-btn">V3</a></van-grid-item
+                  >
+                  <van-grid-item
+                    ><a @click="variation(4, item)" class="opt-btn">V4</a></van-grid-item
+                  >
                 </van-grid>
               </div>
 
               <div class="remove">
                 <el-button type="danger" :icon="Delete" @click="removeImage(item)" circle />
-                <el-button type="warning" v-if="item.publish" @click="publishImage(item, false)" circle>
+                <el-button
+                  type="warning"
+                  v-if="item.publish"
+                  @click="publishImage(item, false)"
+                  circle
+                >
                   <i class="iconfont icon-cancel-share"></i>
                 </el-button>
                 <el-button type="success" v-else @click="publishImage(item, true)" circle>
@@ -245,44 +324,54 @@
       </van-list>
     </div>
 
-    <button style="display: none" class="copy-prompt" :data-clipboard-text="prompt" id="copy-btn">复制</button>
+    <button style="display: none" class="copy-prompt" :data-clipboard-text="prompt" id="copy-btn">
+      复制
+    </button>
   </div>
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref } from "vue";
-import { showConfirmDialog, showFailToast, showImagePreview, showNotify, showSuccessToast, showToast, showDialog } from "vant";
-import { httpGet, httpPost } from "@/utils/http";
-import Compressor from "compressorjs";
-import { getSessionId } from "@/store/session";
-import { checkSession, getSystemInfo } from "@/store/cache";
-import { useRouter } from "vue-router";
-import { Delete } from "@element-plus/icons-vue";
-import { showLoginDialog } from "@/utils/libs";
-import Clipboard from "clipboard";
-import { useSharedStore } from "@/store/sharedata";
+import { checkSession, getSystemInfo } from '@/store/cache'
+import { getSessionId } from '@/store/session'
+import { useSharedStore } from '@/store/sharedata'
+import { httpGet, httpPost } from '@/utils/http'
+import { showLoginDialog } from '@/utils/libs'
+import { Delete } from '@element-plus/icons-vue'
+import Clipboard from 'clipboard'
+import Compressor from 'compressorjs'
+import {
+  showConfirmDialog,
+  showDialog,
+  showFailToast,
+  showImagePreview,
+  showNotify,
+  showSuccessToast,
+  showToast,
+} from 'vant'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const activeColspan = ref([""]);
+const activeColspan = ref([''])
 
 const rates = [
-  { css: "square", value: "1:1", text: "1:1", img: "/images/mj/rate_1_1.png" },
-  { css: "size2-3", value: "2:3", text: "2:3", img: "/images/mj/rate_3_4.png" },
-  { css: "size3-4", value: "3:4", text: "3:4", img: "/images/mj/rate_3_4.png" },
-  { css: "size4-3", value: "4:3", text: "4:3", img: "/images/mj/rate_4_3.png" },
-  { css: "size16-9", value: "16:9", text: "16:9", img: "/images/mj/rate_16_9.png" },
-  { css: "size9-16", value: "9:16", text: "9:16", img: "/images/mj/rate_9_16.png" },
-];
+  { css: 'square', value: '1:1', text: '1:1', img: '/images/mj/rate_1_1.png' },
+  { css: 'size2-3', value: '2:3', text: '2:3', img: '/images/mj/rate_3_4.png' },
+  { css: 'size3-4', value: '3:4', text: '3:4', img: '/images/mj/rate_3_4.png' },
+  { css: 'size4-3', value: '4:3', text: '4:3', img: '/images/mj/rate_4_3.png' },
+  { css: 'size16-9', value: '16:9', text: '16:9', img: '/images/mj/rate_16_9.png' },
+  { css: 'size9-16', value: '9:16', text: '9:16', img: '/images/mj/rate_9_16.png' },
+]
 const models = [
-  { text: "MJ-6.0", value: " --v 6", img: "/images/mj/mj-v6.png" },
-  { text: "MJ-5.2", value: " --v 5.2", img: "/images/mj/mj-v5.2.png" },
-  { text: "Niji5", value: " --niji 5", img: "/images/mj/mj-niji.png" },
-  { text: "Niji5 可爱", value: " --niji 5 --style cute", img: "/images/mj/nj1.jpg" },
-  { text: "Niji5 风景", value: " --niji 5 --style scenic", img: "/images/mj/nj2.jpg" },
-  { text: "Niji6", value: " --niji 6", img: "/images/mj/nj3.jpg" },
-];
-const imgList = ref([]);
+  { text: 'MJ-6.0', value: ' --v 6', img: '/images/mj/mj-v6.png' },
+  { text: 'MJ-5.2', value: ' --v 5.2', img: '/images/mj/mj-v5.2.png' },
+  { text: 'Niji5', value: ' --niji 5', img: '/images/mj/mj-niji.png' },
+  { text: 'Niji5 可爱', value: ' --niji 5 --style cute', img: '/images/mj/nj1.jpg' },
+  { text: 'Niji5 风景', value: ' --niji 5 --style scenic', img: '/images/mj/nj2.jpg' },
+  { text: 'Niji6', value: ' --niji 6', img: '/images/mj/nj3.jpg' },
+]
+const imgList = ref([])
 const params = ref({
-  task_type: "image",
+  task_type: 'image',
   rate: rates[0].value,
   model: models[0].value,
   chaos: 0,
@@ -291,229 +380,229 @@ const params = ref({
   img_arr: [],
   raw: false,
   iw: 0,
-  prompt: "",
-  neg_prompt: "",
+  prompt: '',
+  neg_prompt: '',
   tile: false,
   quality: 0,
-  cref: "",
-  sref: "",
+  cref: '',
+  sref: '',
   cw: 0,
-});
-const userId = ref(0);
-const router = useRouter();
-const runningJobs = ref([]);
-const finishedJobs = ref([]);
-const power = ref(0);
-const activeName = ref("txt2img");
-const isLogin = ref(false);
-const prompt = ref("");
-const store = useSharedStore();
-const clipboard = ref(null);
-const taskPulling = ref(true);
-const tastPullHandler = ref(null);
-const downloadPulling = ref(false);
-const downloadPullHandler = ref(null);
+})
+const userId = ref(0)
+const router = useRouter()
+const runningJobs = ref([])
+const finishedJobs = ref([])
+const power = ref(0)
+const activeName = ref('txt2img')
+const isLogin = ref(false)
+const prompt = ref('')
+const store = useSharedStore()
+const clipboard = ref(null)
+const taskPulling = ref(true)
+const tastPullHandler = ref(null)
+const downloadPulling = ref(false)
+const downloadPullHandler = ref(null)
 
 onMounted(() => {
-  clipboard.value = new Clipboard(".copy-prompt");
-  clipboard.value.on("success", () => {
-    showNotify({ type: "success", message: "复制成功", duration: 1000 });
-  });
-  clipboard.value.on("error", () => {
-    showNotify({ type: "danger", message: "复制失败", duration: 2000 });
-  });
+  clipboard.value = new Clipboard('.copy-prompt')
+  clipboard.value.on('success', () => {
+    showNotify({ type: 'success', message: '复制成功', duration: 1000 })
+  })
+  clipboard.value.on('error', () => {
+    showNotify({ type: 'danger', message: '复制失败', duration: 2000 })
+  })
 
   checkSession()
     .then((user) => {
-      power.value = user["power"];
-      userId.value = user.id;
-      isLogin.value = true;
-      fetchRunningJobs();
-      fetchFinishJobs(1);
+      power.value = user['power']
+      userId.value = user.id
+      isLogin.value = true
+      fetchRunningJobs()
+      fetchFinishJobs(1)
 
       tastPullHandler.value = setInterval(() => {
         if (taskPulling.value) {
-          fetchRunningJobs();
+          fetchRunningJobs()
         }
-      }, 5000);
+      }, 5000)
 
       downloadPullHandler.value = setInterval(() => {
         if (downloadPulling.value) {
-          page.value = 1;
-          fetchFinishJobs(1);
+          page.value = 1
+          fetchFinishJobs(1)
         }
-      }, 5000);
+      }, 5000)
     })
     .catch(() => {
       // router.push('/login')
-    });
-});
+    })
+})
 
 onUnmounted(() => {
-  clipboard.value.destroy();
+  clipboard.value.destroy()
   if (tastPullHandler.value) {
-    clearInterval(tastPullHandler.value);
+    clearInterval(tastPullHandler.value)
   }
   if (downloadPullHandler.value) {
-    clearInterval(downloadPullHandler.value);
+    clearInterval(downloadPullHandler.value)
   }
-});
+})
 
-const mjPower = ref(1);
-const mjActionPower = ref(1);
+const mjPower = ref(1)
+const mjActionPower = ref(1)
 getSystemInfo()
   .then((res) => {
-    mjPower.value = res.data["mj_power"];
-    mjActionPower.value = res.data["mj_action_power"];
+    mjPower.value = res.data['mj_power']
+    mjActionPower.value = res.data['mj_action_power']
   })
   .catch((e) => {
-    showNotify({ type: "danger", message: "获取系统配置失败：" + e.message });
-  });
+    showNotify({ type: 'danger', message: '获取系统配置失败：' + e.message })
+  })
 
 // 获取运行中的任务
 const fetchRunningJobs = (userId) => {
   if (!isLogin.value) {
-    return;
+    return
   }
 
   httpGet(`/api/mj/jobs?finish=0&user_id=${userId}`)
     .then((res) => {
-      const jobs = res.data.items;
-      const _jobs = [];
+      const jobs = res.data.items
+      const _jobs = []
       for (let i = 0; i < jobs.length; i++) {
         if (jobs[i].progress === -1) {
           showNotify({
-            message: `任务执行失败：${jobs[i]["err_msg"]}`,
-            type: "danger",
-          });
-          if (jobs[i].type === "image") {
-            power.value += mjPower.value;
+            message: `任务执行失败：${jobs[i]['err_msg']}`,
+            type: 'danger',
+          })
+          if (jobs[i].type === 'image') {
+            power.value += mjPower.value
           } else {
-            power.value += mjActionPower.value;
+            power.value += mjActionPower.value
           }
-          continue;
+          continue
         }
-        _jobs.push(jobs[i]);
+        _jobs.push(jobs[i])
       }
       if (runningJobs.value.length !== _jobs.length) {
-        page.value = 1;
-        downloadPulling.value = true;
-        fetchFinishJobs(1);
+        page.value = 1
+        downloadPulling.value = true
+        fetchFinishJobs(1)
       }
       if (_jobs.length === 0) {
-        taskPulling.value = false;
+        taskPulling.value = false
       }
-      runningJobs.value = _jobs;
+      runningJobs.value = _jobs
     })
     .catch((e) => {
-      showNotify({ type: "danger", message: "获取任务失败：" + e.message });
-    });
-};
+      showNotify({ type: 'danger', message: '获取任务失败：' + e.message })
+    })
+}
 
-const loading = ref(false);
-const finished = ref(false);
-const error = ref(false);
-const page = ref(0);
-const pageSize = ref(10);
+const loading = ref(false)
+const finished = ref(false)
+const error = ref(false)
+const page = ref(0)
+const pageSize = ref(10)
 const fetchFinishJobs = (page) => {
   if (!isLogin.value) {
-    return;
+    return
   }
 
-  loading.value = true;
+  loading.value = true
   // 获取已完成的任务
   httpGet(`/api/mj/jobs?finish=1&page=${page}&page_size=${pageSize.value}`)
     .then((res) => {
-      const jobs = res.data.items;
-      let hasDownload = false;
+      const jobs = res.data.items
+      let hasDownload = false
       for (let i = 0; i < jobs.length; i++) {
-        if (jobs[i].type === "upscale" || jobs[i].type === "swapFace") {
-          jobs[i]["thumb_url"] = jobs[i]["img_url"] + "?imageView2/1/w/480/h/600/q/75";
+        if (jobs[i].type === 'upscale' || jobs[i].type === 'swapFace') {
+          jobs[i]['thumb_url'] = jobs[i]['img_url'] + '?imageView2/1/w/480/h/600/q/75'
         } else {
-          jobs[i]["thumb_url"] = jobs[i]["img_url"] + "?imageView2/1/w/480/h/480/q/75";
+          jobs[i]['thumb_url'] = jobs[i]['img_url'] + '?imageView2/1/w/480/h/480/q/75'
         }
 
-        if (jobs[i]["img_url"] === "" && jobs[i].progress === 100) {
-          hasDownload = true;
+        if (jobs[i]['img_url'] === '' && jobs[i].progress === 100) {
+          hasDownload = true
         }
 
-        if (jobs[i].type !== "upscale" && jobs[i].progress === 100) {
-          jobs[i]["can_opt"] = true;
+        if (jobs[i].type !== 'upscale' && jobs[i].progress === 100) {
+          jobs[i]['can_opt'] = true
         }
       }
 
       if (page === 1) {
-        downloadPulling.value = hasDownload;
+        downloadPulling.value = hasDownload
       }
 
       if (jobs.length < pageSize.value) {
-        finished.value = true;
+        finished.value = true
       }
 
       if (page === 1) {
-        finishedJobs.value = jobs;
+        finishedJobs.value = jobs
       } else {
-        finishedJobs.value = finishedJobs.value.concat(jobs);
+        finishedJobs.value = finishedJobs.value.concat(jobs)
       }
-      nextTick(() => (loading.value = false));
+      nextTick(() => (loading.value = false))
     })
     .catch((e) => {
-      loading.value = false;
-      error.value = true;
-      showFailToast("获取任务失败：" + e.message);
-    });
-};
+      loading.value = false
+      error.value = true
+      showFailToast('获取任务失败：' + e.message)
+    })
+}
 
 const onLoad = () => {
-  page.value += 1;
-  fetchFinishJobs(page.value);
-};
+  page.value += 1
+  fetchFinishJobs(page.value)
+}
 
 // 切换图片比例
 const changeRate = (item) => {
-  params.value.rate = item.value;
-};
+  params.value.rate = item.value
+}
 // 切换模型
 const changeModel = (item) => {
-  params.value.model = item.value;
-};
+  params.value.model = item.value
+}
 
-const imgKey = ref("");
+const imgKey = ref('')
 const beforeUpload = (key) => {
-  imgKey.value = key;
-};
+  imgKey.value = key
+}
 
 // 图片上传
 const uploadImg = (file) => {
-  file.status = "uploading";
+  file.status = 'uploading'
   // 压缩图片并上传
   new Compressor(file.file, {
     quality: 0.6,
     success(result) {
-      const formData = new FormData();
-      formData.append("file", result, result.name);
+      const formData = new FormData()
+      formData.append('file', result, result.name)
       // 执行上传操作
-      httpPost("/api/upload", formData)
+      httpPost('/api/upload', formData)
         .then((res) => {
-          file.url = res.data.url;
-          if (imgKey.value !== "") {
+          file.url = res.data.url
+          if (imgKey.value !== '') {
             // 单张图片上传
-            params.value[imgKey.value] = res.data.url;
-            imgKey.value = "";
+            params.value[imgKey.value] = res.data.url
+            imgKey.value = ''
           }
-          file.status = "done";
+          file.status = 'done'
         })
         .catch((e) => {
-          file.status = "failed";
-          file.message = "上传失败";
-          showFailToast("图片上传失败：" + e.message);
-        });
+          file.status = 'failed'
+          file.message = '上传失败'
+          showFailToast('图片上传失败：' + e.message)
+        })
     },
     error(err) {
-      console.log(err.message);
+      console.log(err.message)
     },
-  });
-};
+  })
+}
 
 const send = (url, index, item) => {
   httpPost(url, {
@@ -525,126 +614,126 @@ const send = (url, index, item) => {
     prompt: item.prompt,
   })
     .then(() => {
-      showSuccessToast("任务推送成功，请耐心等待任务执行...");
-      power.value -= mjActionPower.value;
+      showSuccessToast('任务推送成功，请耐心等待任务执行...')
+      power.value -= mjActionPower.value
       runningJobs.value.push({
         progress: 0,
-      });
+      })
     })
     .catch((e) => {
-      showFailToast("任务推送失败：" + e.message);
-    });
-};
+      showFailToast('任务推送失败：' + e.message)
+    })
+}
 
 // 图片放大任务
 const upscale = (index, item) => {
-  send("/api/mj/upscale", index, item);
-};
+  send('/api/mj/upscale', index, item)
+}
 
 // 图片变换任务
 const variation = (index, item) => {
-  send("/api/mj/variation", index, item);
-};
+  send('/api/mj/variation', index, item)
+}
 
 const generate = () => {
   if (!isLogin.value) {
-    return showLoginDialog(router);
+    return showLoginDialog(router)
   }
 
-  if (params.value.prompt === "" && params.value.task_type === "image") {
-    return showFailToast("请输入绘画提示词！");
+  if (params.value.prompt === '' && params.value.task_type === 'image') {
+    return showFailToast('请输入绘画提示词！')
   }
-  if (params.value.model.indexOf("niji") !== -1 && params.value.raw) {
-    return showFailToast("动漫模型不允许启用原始模式");
+  if (params.value.model.indexOf('niji') !== -1 && params.value.raw) {
+    return showFailToast('动漫模型不允许启用原始模式')
   }
-  params.value.session_id = getSessionId();
-  params.value.img_arr = imgList.value.map((img) => img.url);
-  httpPost("/api/mj/image", params.value)
+  params.value.session_id = getSessionId()
+  params.value.img_arr = imgList.value.map((img) => img.url)
+  httpPost('/api/mj/image', params.value)
     .then(() => {
-      showToast("绘画任务推送成功，请耐心等待任务执行");
-      power.value -= mjPower.value;
-      taskPulling.value = true;
+      showToast('绘画任务推送成功，请耐心等待任务执行')
+      power.value -= mjPower.value
+      taskPulling.value = true
       runningJobs.value.push({
         progress: 0,
-      });
+      })
     })
     .catch((e) => {
-      showFailToast("任务推送失败：" + e.message);
-    });
-};
+      showFailToast('任务推送失败：' + e.message)
+    })
+}
 
 const removeImage = (item) => {
   showConfirmDialog({
-    title: "删除提示",
-    message: "此操作将会删除任务和图片，继续操作码?",
+    title: '删除提示',
+    message: '此操作将会删除任务和图片，继续操作码?',
   })
     .then(() => {
-      httpGet("/api/mj/remove", { id: item.id, user_id: item.user_id })
+      httpGet('/api/mj/remove', { id: item.id, user_id: item.user_id })
         .then(() => {
-          showSuccessToast("任务删除成功");
-          fetchFinishJobs(1);
+          showSuccessToast('任务删除成功')
+          fetchFinishJobs(1)
         })
         .catch((e) => {
-          showFailToast("任务删除失败：" + e.message);
-        });
+          showFailToast('任务删除失败：' + e.message)
+        })
     })
     .catch(() => {
-      showToast("您取消了操作");
-    });
-};
+      showToast('您取消了操作')
+    })
+}
 // 发布图片到作品墙
 const publishImage = (item, action) => {
-  let text = "图片发布";
+  let text = '图片发布'
   if (action === false) {
-    text = "取消发布";
+    text = '取消发布'
   }
-  httpGet("/api/mj/publish", { id: item.id, action: action, user_id: item.user_id })
+  httpGet('/api/mj/publish', { id: item.id, action: action, user_id: item.user_id })
     .then(() => {
-      showSuccessToast(text + "成功");
-      item.publish = action;
+      showSuccessToast(text + '成功')
+      item.publish = action
     })
     .catch((e) => {
-      showFailToast(text + "失败：" + e.message);
-    });
-};
+      showFailToast(text + '失败：' + e.message)
+    })
+}
 
 const showPrompt = (item) => {
-  prompt.value = item.prompt;
+  prompt.value = item.prompt
   showConfirmDialog({
-    title: "绘画提示词",
+    title: '绘画提示词',
     message: item.prompt,
-    confirmButtonText: "复制",
-    cancelButtonText: "关闭",
+    confirmButtonText: '复制',
+    cancelButtonText: '关闭',
   })
     .then(() => {
-      document.querySelector("#copy-btn").click();
+      document.querySelector('#copy-btn').click()
     })
-    .catch(() => {});
-};
+    .catch(() => {})
+}
 
 const showErrMsg = (item) => {
   showDialog({
-    title: "错误详情",
-    message: item["err_msg"],
+    title: '错误详情',
+    message: item['err_msg'],
   }).then(() => {
     // on close
-  });
-};
+  })
+}
 
 const imageView = (item) => {
-  showImagePreview([item["img_url"]]);
-};
+  showImagePreview([item['img_url']])
+}
 
 // 切换菜单
 const tabChange = (tab) => {
-  if (tab === "txt2img" || tab === "img2img") {
-    params.value.task_type = "image";
+  if (tab === 'txt2img' || tab === 'img2img') {
+    params.value.task_type = 'image'
   } else {
-    params.value.task_type = tab;
+    params.value.task_type = tab
   }
-};
+}
 </script>
 
 <style lang="stylus">
-@import "@/assets/css/mobile/image-mj.styl"
+@import "../../../assets/css/mobile/image-mj.styl"
 </style>

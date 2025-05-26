@@ -133,7 +133,7 @@ const doLogin = function (verifyData) {
   background #8d4bbb
   // background-image url("~@/assets/img/transparent-bg.png")
   // background-repeat:repeat;
-  background-image url("~@/assets/img/admin-login-bg.jpg")
+  background-image url("@/assets/img/admin-login-bg.jpg")
   background-size cover
   background-position center
   background-repeat no-repeat

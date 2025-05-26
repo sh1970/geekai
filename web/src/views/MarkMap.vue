@@ -109,15 +109,15 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, ref } from 'vue'
-import { Markmap } from 'markmap-view'
-import { Transformer } from 'markmap-lib'
 import { checkSession, getSystemInfo } from '@/store/cache'
-import { httpGet, httpPost } from '@/utils/http'
-import { ElMessage } from 'element-plus'
-import { Download } from '@element-plus/icons-vue'
-import { Toolbar } from 'markmap-toolbar'
 import { useSharedStore } from '@/store/sharedata'
+import { httpGet, httpPost } from '@/utils/http'
+import { Download } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { Transformer } from 'markmap-lib'
+import { Toolbar } from 'markmap-toolbar'
+import { Markmap } from 'markmap-view'
+import { nextTick, onMounted, ref } from 'vue'
 
 const leftBoxHeight = ref(window.innerHeight - 105)
 //const rightBoxHeight = ref(window.innerHeight - 115);
@@ -263,9 +263,9 @@ const getModelById = (modelId) => {
 }
 
 // download SVG to png file
-const downloadImage = async() => {
+const downloadImage = async () => {
   // 先自适应思维导图到可视化区域
-  await markMap.value.fit() 
+  await markMap.value.fit()
 
   const svgElement = document.getElementById('markmap')
   const serializer = new XMLSerializer()
@@ -275,7 +275,7 @@ const downloadImage = async() => {
   image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source)
 
   // 分辨率倍数，越高图片越清晰，但文件越大
-  const scale = 4 
+  const scale = 4
   const canvas = document.createElement('canvas')
   canvas.width = svgElement.offsetWidth * scale
   canvas.height = svgElement.offsetHeight * scale
@@ -298,6 +298,6 @@ const downloadImage = async() => {
 </script>
 
 <style lang="stylus">
-@import "@/assets/css/mark-map.styl"
-@import "@/assets/css/custom-scroll.styl"
+@import '../assets/css/mark-map.styl'
+@import '../assets/css/custom-scroll.styl'
 </style>

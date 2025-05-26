@@ -11,11 +11,7 @@
           </el-radio-group>
         </div>
       </div>
-      <div
-        class="waterfall"
-        :style="{ height: listBoxHeight + 'px' }"
-        id="waterfall-box"
-      >
+      <div class="waterfall" :style="{ height: listBoxHeight + 'px' }" id="waterfall-box">
         <Waterfall
           v-if="imgType === 'mj'"
           id="waterfall-mj"
@@ -55,11 +51,7 @@
                   class="pt-3 flex justify-center items-center border-t border-t-gray-600 border-opacity-50"
                 >
                   <div class="opt">
-                    <el-tooltip
-                      class="box-item"
-                      content="复制提示词"
-                      placement="top"
-                    >
+                    <el-tooltip class="box-item" content="复制提示词" placement="top">
                       <el-button
                         type="info"
                         circle
@@ -70,16 +62,8 @@
                       </el-button>
                     </el-tooltip>
 
-                    <el-tooltip
-                      class="box-item"
-                      content="画同款"
-                      placement="top"
-                    >
-                      <el-button
-                        type="primary"
-                        circle
-                        @click="drawSameMj(item)"
-                      >
+                    <el-tooltip class="box-item" content="画同款" placement="top">
+                      <el-button type="primary" circle @click="drawSameMj(item)">
                         <i class="iconfont icon-palette"></i>
                       </el-button>
                     </el-tooltip>
@@ -129,11 +113,7 @@
                   class="pt-3 flex justify-center items-center border-t border-t-gray-600 border-opacity-50"
                 >
                   <div class="opt">
-                    <el-tooltip
-                      class="box-item"
-                      content="复制提示词"
-                      placement="top"
-                    >
+                    <el-tooltip class="box-item" content="复制提示词" placement="top">
                       <el-button
                         type="info"
                         circle
@@ -144,16 +124,8 @@
                       </el-button>
                     </el-tooltip>
 
-                    <el-tooltip
-                      class="box-item"
-                      content="画同款"
-                      placement="top"
-                    >
-                      <el-button
-                        type="primary"
-                        circle
-                        @click="drawSameSd(item)"
-                      >
+                    <el-tooltip class="box-item" content="画同款" placement="top">
+                      <el-button type="primary" circle @click="drawSameSd(item)">
                         <i class="iconfont icon-palette"></i>
                       </el-button>
                     </el-tooltip>
@@ -203,11 +175,7 @@
                   class="pt-3 flex justify-center items-center border-t border-t-gray-600 border-opacity-50"
                 >
                   <div class="opt">
-                    <el-tooltip
-                      class="box-item"
-                      content="复制提示词"
-                      placement="top"
-                    >
+                    <el-tooltip class="box-item" content="复制提示词" placement="top">
                       <el-button
                         type="info"
                         circle
@@ -261,7 +229,7 @@
     <el-image-viewer
       @close="
         () => {
-          previewURL = '';
+          previewURL = ''
         }
       "
       v-if="previewURL !== ''"
@@ -271,142 +239,139 @@
 </template>
 
 <script setup>
-import nodata from "@/assets/img/no-data.png";
-import { nextTick, onMounted, onUnmounted, ref } from "vue";
-import { DocumentCopy, Picture } from "@element-plus/icons-vue";
-import { httpGet } from "@/utils/http";
-import { ElMessage } from "element-plus";
-import Clipboard from "clipboard";
-import { useRouter } from "vue-router";
-import BackTop from "@/components/BackTop.vue";
-import SdTaskView from "@/components/SdTaskView.vue";
-import { LazyImg, Waterfall } from "vue-waterfall-plugin-next";
-import "vue-waterfall-plugin-next/dist/style.css";
-import { useSharedStore } from "@/store/sharedata";
+import BackTop from '@/components/BackTop.vue'
+import SdTaskView from '@/components/SdTaskView.vue'
+import { useSharedStore } from '@/store/sharedata'
+import { httpGet } from '@/utils/http'
+import Clipboard from 'clipboard'
+import { ElMessage } from 'element-plus'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { LazyImg, Waterfall } from 'vue-waterfall-plugin-next'
+import 'vue-waterfall-plugin-next/dist/style.css'
 
-const store = useSharedStore();
-const waterfallOptions = store.waterfallOptions;
+const store = useSharedStore()
+const waterfallOptions = store.waterfallOptions
 
 const data = ref({
   mj: [],
   sd: [],
   dall: [],
-});
-const loading = ref(true);
-const isOver = ref(false);
-const imgType = ref("mj"); // 图片类别
-const listBoxHeight = window.innerHeight - 124;
-const showTaskDialog = ref(false);
-const item = ref({});
-const previewURL = ref("");
+})
+const loading = ref(true)
+const isOver = ref(false)
+const imgType = ref('mj') // 图片类别
+const listBoxHeight = window.innerHeight - 124
+const showTaskDialog = ref(false)
+const item = ref({})
+const previewURL = ref('')
 
 const previewImg = (item) => {
-  previewURL.value = item.img_url;
-};
+  previewURL.value = item.img_url
+}
 
-const page = ref(0);
-const pageSize = ref(15);
+const page = ref(0)
+const pageSize = ref(15)
 // 获取下一页数据
 const getNext = () => {
   if (isOver.value) {
-    return;
+    return
   }
 
-  loading.value = true;
-  page.value = page.value + 1;
-  let url = "";
+  loading.value = true
+  page.value = page.value + 1
+  let url = ''
   switch (imgType.value) {
-    case "mj":
-      url = "/api/mj/imgWall";
-      break;
-    case "sd":
-      url = "/api/sd/imgWall";
-      break;
-    case "dall":
-      url = "/api/dall/imgWall";
-      break;
+    case 'mj':
+      url = '/api/mj/imgWall'
+      break
+    case 'sd':
+      url = '/api/sd/imgWall'
+      break
+    case 'dall':
+      url = '/api/dall/imgWall'
+      break
   }
   httpGet(`${url}?page=${page.value}&page_size=${pageSize.value}`)
     .then((res) => {
       if (!res.data.items || res.data.items.length === 0) {
-        isOver.value = true;
-        loading.value = false;
-        return;
+        isOver.value = true
+        loading.value = false
+        return
       }
 
       // 生成缩略图
-      const imageList = res.data.items;
+      const imageList = res.data.items
       for (let i = 0; i < imageList.length; i++) {
-        imageList[i]["img_thumb"] =
-          imageList[i]["img_url"] + "?imageView2/4/w/300/h/0/q/75";
+        imageList[i]['img_thumb'] = imageList[i]['img_url'] + '?imageView2/4/w/300/h/0/q/75'
       }
       if (data.value[imgType.value].length === 0) {
-        data.value[imgType.value] = imageList;
-        return;
+        data.value[imgType.value] = imageList
+        return
       }
 
       if (imageList.length < pageSize.value) {
-        isOver.value = true;
+        isOver.value = true
       }
-      data.value[imgType.value] = data.value[imgType.value].concat(imageList);
+      data.value[imgType.value] = data.value[imgType.value].concat(imageList)
     })
     .catch((e) => {
-      ElMessage.error("获取图片失败：" + e.message);
-      loading.value = false;
-    });
-};
+      ElMessage.error('获取图片失败：' + e.message)
+      loading.value = false
+    })
+}
 
-getNext();
+getNext()
 
-const clipboard = ref(null);
+const clipboard = ref(null)
 onMounted(() => {
-  clipboard.value = new Clipboard(".copy-prompt-wall");
-  clipboard.value.on("success", () => {
-    ElMessage.success("复制成功！");
-  });
+  clipboard.value = new Clipboard('.copy-prompt-wall')
+  clipboard.value.on('success', () => {
+    ElMessage.success('复制成功！')
+  })
 
-  clipboard.value.on("error", () => {
-    ElMessage.error("复制失败！");
-  });
-});
+  clipboard.value.on('error', () => {
+    ElMessage.error('复制失败！')
+  })
+})
 
 onUnmounted(() => {
-  clipboard.value.destroy();
-});
+  clipboard.value.destroy()
+})
 
 const changeImgType = () => {
-  console.log(imgType.value);
-  document.getElementById("waterfall-box").scrollTo(0, 0);
-  page.value = 0;
+  console.log(imgType.value)
+  document.getElementById('waterfall-box').scrollTo(0, 0)
+  page.value = 0
   data.value = {
     mj: [],
     sd: [],
     dall: [],
-  };
-  loading.value = true;
-  isOver.value = false;
-  nextTick(() => getNext());
-};
+  }
+  loading.value = true
+  isOver.value = false
+  nextTick(() => getNext())
+}
 
 const showTask = (row) => {
-  item.value = row;
-  showTaskDialog.value = true;
-};
+  item.value = row
+  showTaskDialog.value = true
+}
 
-const router = useRouter();
+const router = useRouter()
 const drawSameSd = (row) => {
   router.push({
-    name: "image-sd",
+    name: 'image-sd',
     params: { copyParams: JSON.stringify(row.params) },
-  });
-};
+  })
+}
 
 const drawSameMj = (row) => {
-  router.push({ name: "image-mj", params: { prompt: row.prompt } });
-};
+  router.push({ name: 'image-mj', params: { prompt: row.prompt } })
+}
 </script>
 
 <style lang="stylus">
-@import '@/assets/css/images-wall.styl';
-@import '@/assets/css/custom-scroll.styl';
+@import '../assets/css/images-wall.styl';
+@import '../assets/css/custom-scroll.styl';
 </style>

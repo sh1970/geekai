@@ -119,8 +119,6 @@ console.log(
 </script>
 
 <style lang="stylus">
-@import '@/assets/iconfont/iconfont.css'
-
 html, body {
   margin: 0;
   padding: 0;

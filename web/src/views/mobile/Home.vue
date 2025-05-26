@@ -1,37 +1,36 @@
 <template>
   <van-config-provider :theme="theme">
     <div class="mobile-home">
-      <router-view/>
+      <router-view />
 
       <van-tabbar route v-model="active">
         <van-tabbar-item to="/mobile/index" name="home" icon="home-o">首页</van-tabbar-item>
         <van-tabbar-item to="/mobile/chat" name="chat" icon="chat-o">对话</van-tabbar-item>
         <van-tabbar-item to="/mobile/image" name="image" icon="photo-o">绘图</van-tabbar-item>
-        <van-tabbar-item to="/mobile/profile" name="profile" icon="user-o">我的
-        </van-tabbar-item>
+        <van-tabbar-item to="/mobile/profile" name="profile" icon="user-o">我的 </van-tabbar-item>
       </van-tabbar>
-
     </div>
   </van-config-provider>
-
 </template>
 
 <script setup>
-import {ref, watch} from "vue";
-import {useSharedStore} from "@/store/sharedata";
+import { useSharedStore } from '@/store/sharedata'
+import { ref, watch } from 'vue'
 
 const active = ref('home')
 const store = useSharedStore()
 const theme = ref(store.theme)
 
-watch(() => store.theme, (val) => {
-  theme.value = val
-})
-
+watch(
+  () => store.theme,
+  (val) => {
+    theme.value = val
+  }
+)
 </script>
 
 <style lang="stylus">
-@import '@/assets/iconfont/iconfont.css';
+@import '../../assets/iconfont/iconfont.css';
 .mobile-home {
   .container {
     .van-nav-bar {

@@ -3,29 +3,65 @@
     <van-form @submit="generate">
       <van-cell-group inset>
         <div>
-          <van-field v-model="selectedModel" is-link label="生图模型" placeholder="选择生图模型" @click="showModelPicker = true" />
+          <van-field
+            v-model="selectedModel"
+            is-link
+            label="生图模型"
+            placeholder="选择生图模型"
+            @click="showModelPicker = true"
+          />
           <van-popup v-model:show="showModelPicker" position="bottom" teleport="#app">
-            <van-picker :columns="models" @cancel="showModelPicker = false" @confirm="modelConfirm" />
+            <van-picker
+              :columns="models"
+              @cancel="showModelPicker = false"
+              @confirm="modelConfirm"
+            />
           </van-popup>
         </div>
         <div>
-          <van-field v-model="quality" is-link label="图片质量" placeholder="选择图片质量" @click="showQualityPicker = true" />
+          <van-field
+            v-model="quality"
+            is-link
+            label="图片质量"
+            placeholder="选择图片质量"
+            @click="showQualityPicker = true"
+          />
           <van-popup v-model:show="showQualityPicker" position="bottom" teleport="#app">
-            <van-picker :columns="qualities" @cancel="showQualityPicker = false" @confirm="qualityConfirm" />
+            <van-picker
+              :columns="qualities"
+              @cancel="showQualityPicker = false"
+              @confirm="qualityConfirm"
+            />
           </van-popup>
         </div>
 
         <div>
-          <van-field v-model="size" is-link label="图片尺寸" placeholder="选择图片尺寸" @click="showSizePicker = true" />
+          <van-field
+            v-model="size"
+            is-link
+            label="图片尺寸"
+            placeholder="选择图片尺寸"
+            @click="showSizePicker = true"
+          />
           <van-popup v-model:show="showSizePicker" position="bottom" teleport="#app">
             <van-picker :columns="sizes" @cancel="showSizePicker = false" @confirm="sizeConfirm" />
           </van-popup>
         </div>
 
         <div>
-          <van-field v-model="style" is-link label="图片样式" placeholder="选择图片样式" @click="showStylePicker = true" />
+          <van-field
+            v-model="style"
+            is-link
+            label="图片样式"
+            placeholder="选择图片样式"
+            @click="showStylePicker = true"
+          />
           <van-popup v-model:show="showStylePicker" position="bottom" teleport="#app">
-            <van-picker :columns="styles" @cancel="showStylePicker = false" @confirm="styleConfirm" />
+            <van-picker
+              :columns="styles"
+              @cancel="showStylePicker = false"
+              @confirm="styleConfirm"
+            />
           </van-popup>
         </div>
 
@@ -61,7 +97,14 @@
           <div v-if="item.progress > 0">
             <van-image src="/images/img-holder.png"></van-image>
             <div class="progress">
-              <van-circle v-model:current-rate="item.progress" :rate="item.progress" :speed="100" :text="item.progress + '%'" :stroke-width="60" size="90px" />
+              <van-circle
+                v-model:current-rate="item.progress"
+                :rate="item.progress"
+                :speed="100"
+                :text="item.progress + '%'"
+                :stroke-width="60"
+                size="90px"
+              />
             </div>
           </div>
 
@@ -97,11 +140,19 @@
               <div class="title">任务失败</div>
               <div class="opt">
                 <van-button size="small" @click="showErrMsg(item)">详情</van-button>
-                <van-button type="danger" @click="removeImage($event, item)" size="small">删除</van-button>
+                <van-button type="danger" @click="removeImage($event, item)" size="small"
+                  >删除</van-button
+                >
               </div>
             </div>
             <div class="job-item" v-else>
-              <van-image :src="item['img_url']" :class="item['can_opt'] ? '' : 'upscale'" lazy-load @click="imageView(item)" fit="cover">
+              <van-image
+                :src="item['img_url']"
+                :class="item['can_opt'] ? '' : 'upscale'"
+                lazy-load
+                @click="imageView(item)"
+                fit="cover"
+              >
                 <template v-slot:loading>
                   <van-loading type="spinner" size="20" />
                 </template>
@@ -109,7 +160,12 @@
 
               <div class="remove">
                 <el-button type="danger" :icon="Delete" @click="removeImage($event, item)" circle />
-                <el-button type="warning" v-if="item.publish" @click="publishImage($event, item, false)" circle>
+                <el-button
+                  type="warning"
+                  v-if="item.publish"
+                  @click="publishImage($event, item, false)"
+                  circle
+                >
                   <i class="iconfont icon-cancel-share"></i>
                 </el-button>
                 <el-button type="success" v-else @click="publishImage($event, item, true)" circle>
@@ -124,324 +180,343 @@
         </van-grid>
       </van-list>
     </div>
-    <button style="display: none" class="copy-prompt-dall" :data-clipboard-text="prompt" id="copy-btn-dall">复制</button>
+    <button
+      style="display: none"
+      class="copy-prompt-dall"
+      :data-clipboard-text="prompt"
+      id="copy-btn-dall"
+    >
+      复制
+    </button>
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
-import { Delete } from "@element-plus/icons-vue";
-import { httpGet, httpPost } from "@/utils/http";
-import Clipboard from "clipboard";
-import { checkSession, getSystemInfo } from "@/store/cache";
-import { useRouter } from "vue-router";
-import { getSessionId } from "@/store/session";
-import { showConfirmDialog, showDialog, showFailToast, showImagePreview, showNotify, showSuccessToast, showToast } from "vant";
-import { showLoginDialog } from "@/utils/libs";
-import { useSharedStore } from "@/store/sharedata";
+import { checkSession, getSystemInfo } from '@/store/cache'
+import { getSessionId } from '@/store/session'
+import { useSharedStore } from '@/store/sharedata'
+import { httpGet, httpPost } from '@/utils/http'
+import { showLoginDialog } from '@/utils/libs'
+import { Delete } from '@element-plus/icons-vue'
+import Clipboard from 'clipboard'
+import {
+  showConfirmDialog,
+  showDialog,
+  showFailToast,
+  showImagePreview,
+  showNotify,
+  showSuccessToast,
+  showToast,
+} from 'vant'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const listBoxHeight = ref(window.innerHeight - 40);
-const mjBoxHeight = ref(window.innerHeight - 150);
-const isLogin = ref(false);
+const listBoxHeight = ref(window.innerHeight - 40)
+const mjBoxHeight = ref(window.innerHeight - 150)
+const isLogin = ref(false)
 
 window.onresize = () => {
-  listBoxHeight.value = window.innerHeight - 40;
-  mjBoxHeight.value = window.innerHeight - 150;
-};
+  listBoxHeight.value = window.innerHeight - 40
+  mjBoxHeight.value = window.innerHeight - 150
+}
 
 const qualities = [
-  { text: "标准", value: "standard" },
-  { text: "高清", value: "hd" },
-];
+  { text: '标准', value: 'standard' },
+  { text: '高清', value: 'hd' },
+]
 const fluxSizes = [
-  { text: "1024x1024", value: "1024x1024" },
-  { text: "1024x768", value: "1024x768" },
-  { text: "768x1024", value: "768x1024" },
-  { text: "1280x960", value: "1280x960" },
-  { text: "960x1280", value: "960x1280" },
-  { text: "1366x768", value: "1366x768" },
-  { text: "768x1366", value: "768x1366" },
-];
+  { text: '1024x1024', value: '1024x1024' },
+  { text: '1024x768', value: '1024x768' },
+  { text: '768x1024', value: '768x1024' },
+  { text: '1280x960', value: '1280x960' },
+  { text: '960x1280', value: '960x1280' },
+  { text: '1366x768', value: '1366x768' },
+  { text: '768x1366', value: '768x1366' },
+]
 const dalleSizes = [
-  { text: "1024x1024", value: "1024x1024" },
-  { text: "1792x1024", value: "1792x1024" },
-  { text: "1024x1792", value: "1024x1792" },
-];
+  { text: '1024x1024', value: '1024x1024' },
+  { text: '1792x1024', value: '1792x1024' },
+  { text: '1024x1792', value: '1024x1792' },
+]
 
-let sizes = dalleSizes;
+let sizes = dalleSizes
 const styles = [
-  { text: "生动", value: "vivid" },
-  { text: "自然", value: "natural" },
-];
+  { text: '生动', value: 'vivid' },
+  { text: '自然', value: 'natural' },
+]
 const params = ref({
   quality: qualities[0].value,
   size: sizes[0].value,
   style: styles[0].value,
-  prompt: "",
-});
-const quality = ref(qualities[0].text);
-const size = ref(sizes[0].text);
-const style = ref(styles[0].text);
+  prompt: '',
+})
+const quality = ref(qualities[0].text)
+const size = ref(sizes[0].text)
+const style = ref(styles[0].text)
 
-const showQualityPicker = ref(false);
-const showStylePicker = ref(false);
-const showSizePicker = ref(false);
-const showModelPicker = ref(false);
+const showQualityPicker = ref(false)
+const showStylePicker = ref(false)
+const showSizePicker = ref(false)
+const showModelPicker = ref(false)
 
-const runningJobs = ref([]);
-const finishedJobs = ref([]);
-const allowPulling = ref(true); // 是否允许轮询
-const tastPullHandler = ref(null);
-const router = useRouter();
-const power = ref(0);
-const dallPower = ref(0); // 画一张 DALL 图片消耗算力
+const runningJobs = ref([])
+const finishedJobs = ref([])
+const allowPulling = ref(true) // 是否允许轮询
+const tastPullHandler = ref(null)
+const router = useRouter()
+const power = ref(0)
+const dallPower = ref(0) // 画一张 DALL 图片消耗算力
 
-const userId = ref(0);
-const store = useSharedStore();
-const clipboard = ref(null);
-const prompt = ref("");
-const models = ref([]);
-const selectedModel = ref(null);
+const userId = ref(0)
+const store = useSharedStore()
+const clipboard = ref(null)
+const prompt = ref('')
+const models = ref([])
+const selectedModel = ref(null)
 
 onMounted(() => {
-  initData();
-  clipboard.value = new Clipboard(".copy-prompt-dall");
-  clipboard.value.on("success", () => {
-    showNotify({ type: "success", message: "复制成功", duration: 1000 });
-  });
-  clipboard.value.on("error", () => {
-    showNotify({ type: "danger", message: "复制失败", duration: 2000 });
-  });
+  initData()
+  clipboard.value = new Clipboard('.copy-prompt-dall')
+  clipboard.value.on('success', () => {
+    showNotify({ type: 'success', message: '复制成功', duration: 1000 })
+  })
+  clipboard.value.on('error', () => {
+    showNotify({ type: 'danger', message: '复制失败', duration: 2000 })
+  })
 
   getSystemInfo()
     .then((res) => {
-      dallPower.value = res.data.dall_power;
+      dallPower.value = res.data.dall_power
     })
     .catch((e) => {
-      showNotify({ type: "danger", message: "获取系统配置失败：" + e.message });
-    });
+      showNotify({ type: 'danger', message: '获取系统配置失败：' + e.message })
+    })
 
   // 获取模型列表
-  httpGet("/api/dall/models")
+  httpGet('/api/dall/models')
     .then((res) => {
       for (let i = 0; i < res.data.length; i++) {
-        models.value.push({ text: res.data[i].name, value: res.data[i].id, name: res.data[i].value });
+        models.value.push({
+          text: res.data[i].name,
+          value: res.data[i].id,
+          name: res.data[i].value,
+        })
       }
-      selectedModel.value = models.value[0]?.text;
-      params.value.model_id = models.value[0]?.value;
+      selectedModel.value = models.value[0]?.text
+      params.value.model_id = models.value[0]?.value
     })
     .catch((e) => {
-      showMessageError("获取模型列表失败：" + e.message);
-    });
-});
+      showMessageError('获取模型列表失败：' + e.message)
+    })
+})
 
 onUnmounted(() => {
-  clipboard.value.destroy();
+  clipboard.value.destroy()
   if (tastPullHandler.value) {
-    clearInterval(tastPullHandler.value);
+    clearInterval(tastPullHandler.value)
   }
-});
+})
 
 const initData = () => {
   checkSession()
     .then((user) => {
-      power.value = user["power"];
-      isLogin.value = true;
-      fetchRunningJobs();
-      fetchFinishJobs(1);
+      power.value = user['power']
+      isLogin.value = true
+      fetchRunningJobs()
+      fetchFinishJobs(1)
 
       tastPullHandler.value = setInterval(() => {
         if (allowPulling.value) {
-          fetchRunningJobs();
+          fetchRunningJobs()
         }
-      }, 5000);
+      }, 5000)
     })
     .catch(() => {
-      loading.value = false;
-    });
-};
+      loading.value = false
+    })
+}
 
 const fetchRunningJobs = () => {
   // 获取运行中的任务
   httpGet(`/api/dall/jobs?finish=0`)
     .then((res) => {
       if (runningJobs.value.length !== res.data.items.length) {
-        fetchFinishJobs(1);
+        fetchFinishJobs(1)
       }
       if (res.data.items.length === 0) {
-        allowPulling.value = false;
+        allowPulling.value = false
       }
-      runningJobs.value = res.data.items;
+      runningJobs.value = res.data.items
     })
     .catch((e) => {
-      showNotify({ type: "danger", message: "获取任务失败：" + e.message });
-    });
-};
+      showNotify({ type: 'danger', message: '获取任务失败：' + e.message })
+    })
+}
 
-const loading = ref(false);
-const finished = ref(false);
-const error = ref(false);
-const page = ref(0);
-const pageSize = ref(10);
+const loading = ref(false)
+const finished = ref(false)
+const error = ref(false)
+const page = ref(0)
+const pageSize = ref(10)
 // 获取已完成的任务
 const fetchFinishJobs = (page) => {
-  loading.value = true;
+  loading.value = true
   httpGet(`/api/dall/jobs?finish=1&page=${page}&page_size=${pageSize.value}`)
     .then((res) => {
-      const jobs = res.data.items;
+      const jobs = res.data.items
       if (jobs.length < pageSize.value) {
-        finished.value = true;
+        finished.value = true
       }
-      const _jobs = [];
+      const _jobs = []
       for (let i = 0; i < jobs.length; i++) {
         if (jobs[i].progress === -1) {
-          jobs[i]["thumb_url"] = jobs[i]["img_url"] + "?imageView2/1/w/480/h/600/q/75";
+          jobs[i]['thumb_url'] = jobs[i]['img_url'] + '?imageView2/1/w/480/h/600/q/75'
         }
-        _jobs.push(jobs[i]);
+        _jobs.push(jobs[i])
       }
       if (page === 1) {
-        finishedJobs.value = _jobs;
+        finishedJobs.value = _jobs
       } else {
-        finishedJobs.value = finishedJobs.value.concat(_jobs);
+        finishedJobs.value = finishedJobs.value.concat(_jobs)
       }
-      loading.value = false;
+      loading.value = false
     })
     .catch((e) => {
-      loading.value = false;
-      showNotify({ type: "danger", message: "获取任务失败：" + e.message });
-    });
-};
+      loading.value = false
+      showNotify({ type: 'danger', message: '获取任务失败：' + e.message })
+    })
+}
 
 const onLoad = () => {
-  page.value += 1;
-  fetchFinishJobs(page.value);
-};
+  page.value += 1
+  fetchFinishJobs(page.value)
+}
 
 // 创建绘图任务
-const promptRef = ref(null);
+const promptRef = ref(null)
 const generate = () => {
   if (!isLogin.value) {
-    return showLoginDialog(router);
+    return showLoginDialog(router)
   }
 
-  if (params.value.prompt === "") {
-    promptRef.value.focus();
-    return showToast("请输入绘画提示词！");
+  if (params.value.prompt === '') {
+    promptRef.value.focus()
+    return showToast('请输入绘画提示词！')
   }
 
   if (!params.value.seed) {
-    params.value.seed = -1;
+    params.value.seed = -1
   }
-  params.value.session_id = getSessionId();
-  httpPost("/api/dall/image", params.value)
+  params.value.session_id = getSessionId()
+  httpPost('/api/dall/image', params.value)
     .then(() => {
-      showSuccessToast("绘画任务推送成功，请耐心等待任务执行...");
-      power.value -= dallPower.value;
-      allowPulling.value = true;
+      showSuccessToast('绘画任务推送成功，请耐心等待任务执行...')
+      power.value -= dallPower.value
+      allowPulling.value = true
       runningJobs.value.push({
         progress: 0,
-      });
+      })
     })
     .catch((e) => {
-      showFailToast("任务推送失败：" + e.message);
-    });
-};
+      showFailToast('任务推送失败：' + e.message)
+    })
+}
 
 const showPrompt = (item) => {
-  prompt.value = item.prompt;
+  prompt.value = item.prompt
   showConfirmDialog({
-    title: "绘画提示词",
+    title: '绘画提示词',
     message: item.prompt,
-    confirmButtonText: "复制",
-    cancelButtonText: "关闭",
+    confirmButtonText: '复制',
+    cancelButtonText: '关闭',
   })
     .then(() => {
-      document.querySelector("#copy-btn-dall").click();
+      document.querySelector('#copy-btn-dall').click()
     })
-    .catch(() => {});
-};
+    .catch(() => {})
+}
 
 const showErrMsg = (item) => {
   showDialog({
-    title: "错误详情",
-    message: item["err_msg"],
+    title: '错误详情',
+    message: item['err_msg'],
   }).then(() => {
     // on close
-  });
-};
+  })
+}
 
 const removeImage = (event, item) => {
-  event.stopPropagation();
+  event.stopPropagation()
   showConfirmDialog({
-    title: "标题",
-    message: "此操作将会删除任务和图片，继续操作码?",
+    title: '标题',
+    message: '此操作将会删除任务和图片，继续操作码?',
   })
     .then(() => {
-      httpGet("/api/dall/remove", { id: item.id, user_id: item.user_id })
+      httpGet('/api/dall/remove', { id: item.id, user_id: item.user_id })
         .then(() => {
-          showSuccessToast("任务删除成功");
-          fetchFinishJobs(1);
+          showSuccessToast('任务删除成功')
+          fetchFinishJobs(1)
         })
         .catch((e) => {
-          showFailToast("任务删除失败：" + e.message);
-        });
+          showFailToast('任务删除失败：' + e.message)
+        })
     })
     .catch(() => {
-      showToast("您取消了操作");
-    });
-};
+      showToast('您取消了操作')
+    })
+}
 
 // 发布图片到作品墙
 const publishImage = (event, item, action) => {
-  event.stopPropagation();
-  let text = "图片发布";
+  event.stopPropagation()
+  let text = '图片发布'
   if (action === false) {
-    text = "取消发布";
+    text = '取消发布'
   }
-  httpGet("/api/dall/publish", { id: item.id, action: action, user_id: item.user_id })
+  httpGet('/api/dall/publish', { id: item.id, action: action, user_id: item.user_id })
     .then(() => {
-      showSuccessToast(text + "成功");
-      item.publish = action;
+      showSuccessToast(text + '成功')
+      item.publish = action
     })
     .catch((e) => {
-      showFailToast(text + "失败：" + e.message);
-    });
-};
+      showFailToast(text + '失败：' + e.message)
+    })
+}
 
 const imageView = (item) => {
-  showImagePreview([item["img_url"]]);
-};
+  showImagePreview([item['img_url']])
+}
 
 const qualityConfirm = (item) => {
-  params.value.quality = item.selectedOptions[0].value;
-  quality.value = item.selectedOptions[0].text;
-  showQualityPicker.value = false;
-};
+  params.value.quality = item.selectedOptions[0].value
+  quality.value = item.selectedOptions[0].text
+  showQualityPicker.value = false
+}
 
 const styleConfirm = (item) => {
-  params.value.style = item.selectedOptions[0].value;
-  style.value = item.selectedOptions[0].text;
-  showStylePicker.value = false;
-};
+  params.value.style = item.selectedOptions[0].value
+  style.value = item.selectedOptions[0].text
+  showStylePicker.value = false
+}
 
 const sizeConfirm = (item) => {
-  params.value.size = item.selectedOptions[0].value;
-  size.value = item.selectedOptions[0].text;
-  showSizePicker.value = false;
-};
+  params.value.size = item.selectedOptions[0].value
+  size.value = item.selectedOptions[0].text
+  showSizePicker.value = false
+}
 
 const modelConfirm = (item) => {
-  params.value.model_id = item.selectedOptions[0].value;
-  selectedModel.value = item.selectedOptions[0].text;
-  showModelPicker.value = false;
-  if (item.selectedOptions[0].name.startsWith("dall")) {
-    sizes = dalleSizes;
+  params.value.model_id = item.selectedOptions[0].value
+  selectedModel.value = item.selectedOptions[0].text
+  showModelPicker.value = false
+  if (item.selectedOptions[0].name.startsWith('dall')) {
+    sizes = dalleSizes
   } else {
-    sizes = fluxSizes;
+    sizes = fluxSizes
   }
-};
+}
 </script>
 
 <style lang="stylus">
-@import "@/assets/css/mobile/image-sd.styl"
+@import '../../../assets/css/mobile/image-sd.styl'
 </style>

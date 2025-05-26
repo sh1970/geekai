@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import nodata from "@/assets/img/no-data.png";
+import nodata from '@/assets/img/no-data.png'
 
 // eslint-disable-next-line no-undef
 const props = defineProps({
@@ -30,9 +30,9 @@ const props = defineProps({
     type: Array,
     default: [],
   },
-});
+})
 </script>
 
-<style scoped lang="stylus">
-@import "~@/assets/css/running-job-list.styl"
+<style lang="stylus" scoped>
+@import "../assets/css/running-job-list.styl"
 </style>

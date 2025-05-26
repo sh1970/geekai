@@ -471,21 +471,21 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { Delete, DocumentCopy, InfoFilled, Orange } from '@element-plus/icons-vue'
 import nodata from '@/assets/img/no-data.png'
+import { Delete, InfoFilled, Orange } from '@element-plus/icons-vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
-import { httpGet, httpPost } from '@/utils/http'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import Clipboard from 'clipboard'
+import BackTop from '@/components/BackTop.vue'
+import SdTaskView from '@/components/SdTaskView.vue'
+import TaskList from '@/components/TaskList.vue'
 import { checkSession, getSystemInfo } from '@/store/cache'
-import { useRouter } from 'vue-router'
 import { getSessionId } from '@/store/session'
 import { useSharedStore } from '@/store/sharedata'
-import TaskList from '@/components/TaskList.vue'
-import BackTop from '@/components/BackTop.vue'
 import { showMessageError } from '@/utils/dialog'
-import SdTaskView from '@/components/SdTaskView.vue'
+import { httpGet, httpPost } from '@/utils/http'
+import Clipboard from 'clipboard'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { LazyImg, Waterfall } from 'vue-waterfall-plugin-next'
 import 'vue-waterfall-plugin-next/dist/style.css'
 
@@ -753,6 +753,6 @@ const generatePrompt = () => {
 </script>
 
 <style lang="stylus">
-@import '@/assets/css/image-sd.styl';
-@import '@/assets/css/custom-scroll.styl';
+@import '../assets/css/image-sd.styl';
+@import '../assets/css/custom-scroll.styl';
 </style>

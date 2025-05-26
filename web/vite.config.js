@@ -1,31 +1,42 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig, loadEnv } from 'vite'
 
-// https://vitejs.dev/config/
+// https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd())
+  // 加载环境变量
+  const env = loadEnv(mode, process.cwd(), '')
   const apiHost = env.VITE_API_HOST || 'http://localhost:5678'
-
   return {
-    plugins: [vue()],
+    plugins: [
+      vue(),
+      AutoImport({
+        imports: [
+          'vue',
+          'vue-router',
+          {
+            '@vueuse/core': ['useMouse', 'useFetch'],
+          },
+        ],
+        dts: true, // 生成 TypeScript 声明文件
+      }),
+    ],
+    base: env.VITE_BASE_URL,
+    build: {
+      outDir: 'dist', // 构建输出目录
+    },
+
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        '~@': path.resolve(__dirname, './src'),
       },
     },
-    css: {
-      preprocessorOptions: {
-        stylus: {
-          additionalData: `@import "@/assets/css/index.styl";`,
-        },
-      },
-    },
-    optimizeDeps: {
-      include: ['stylus'],
-    },
+
     server: {
-      port: 8888,
+      port: 8888, // 设置你想要的端口号
+      open: false, // 可选：启动服务器时自动打开浏览器
       ...(process.env.NODE_ENV === 'development'
         ? {
             proxy: {

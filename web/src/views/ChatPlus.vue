@@ -264,7 +264,12 @@
                   <welcome @send="autofillPrompt" />
                 </div>
                 <div v-for="item in chatData" :key="item.id" v-else>
-                  <chat-prompt v-if="item.type === 'prompt'" :data="item" :list-style="listStyle" @edit="editUserPrompt" />
+                  <chat-prompt
+                    v-if="item.type === 'prompt'"
+                    :data="item"
+                    :list-style="listStyle"
+                    @edit="editUserPrompt"
+                  />
                   <chat-reply
                     v-else-if="item.type === 'reply'"
                     :data="item"
@@ -1191,54 +1196,57 @@ const stopGenerate = function () {
 // 重新生成
 const reGenerate = function () {
   // 恢复发送按钮状态
-  canSend.value = true;
-  showStopGenerate.value = false;
-  
+  canSend.value = true
+  showStopGenerate.value = false
+
   // 查找最后的用户消息和AI回复并删除
   if (chatData.value.length >= 2) {
     // 从后往前找，如果最后一条是AI回复，再往前一条是用户消息
     if (chatData.value[chatData.value.length - 1].type === 'reply') {
       // 删除AI回复
-      chatData.value.pop();
-      
+      chatData.value.pop()
+
       // 如果此时最后一条是用户消息，也删除它
-      if (chatData.value.length > 0 && chatData.value[chatData.value.length - 1].type === 'prompt') {
+      if (
+        chatData.value.length > 0 &&
+        chatData.value[chatData.value.length - 1].type === 'prompt'
+      ) {
         // 保存用户消息内容，填入输入框
-        const userPrompt = chatData.value[chatData.value.length - 1].content;
+        const userPrompt = chatData.value[chatData.value.length - 1].content
         // 删除用户消息
-        chatData.value.pop();
+        chatData.value.pop()
         // 填入输入框
-        prompt.value = userPrompt;
+        prompt.value = userPrompt
       }
     }
   }
-  
+
   // 将光标定位到输入框并聚焦
   nextTick(() => {
     if (inputRef.value) {
-      inputRef.value.focus();
+      inputRef.value.focus()
       // 触发输入事件以更新文本高度
-      onInput({ keyCode: null });
+      onInput({ keyCode: null })
     }
-  });
+  })
 }
 
 // 编辑用户消息
 const editUserPrompt = function (messageId) {
   // 找到要编辑的消息及其索引
-  let messageIndex = -1;
-  let messageContent = '';
-  
+  let messageIndex = -1
+  let messageContent = ''
+
   for (let i = 0; i < chatData.value.length; i++) {
     if (chatData.value[i].id === messageId) {
-      messageIndex = i;
-      messageContent = chatData.value[i].content;
-      break;
+      messageIndex = i
+      messageContent = chatData.value[i].content
+      break
     }
   }
-  
-  if (messageIndex === -1) return;
-  
+
+  if (messageIndex === -1) return
+
   // 弹出编辑对话框
   ElMessageBox.prompt('', '编辑消息', {
     confirmButtonText: '确定',
@@ -1246,51 +1254,53 @@ const editUserPrompt = function (messageId) {
     inputValue: messageContent,
     inputType: 'textarea',
     customClass: 'edit-prompt-dialog',
-    roundButton: true
-  }).then(({ value }) => {
-    if (value.trim() === '') {
-      ElMessage.warning('消息内容不能为空');
-      return;
-    }
-    
-    // 更新用户消息
-    chatData.value[messageIndex].content = value;
-    
-    // 移除该消息之后的所有消息
-    chatData.value = chatData.value.slice(0, messageIndex + 1);
-    
-    // 添加空回复消息
-    const _role = getRoleById(roleId.value);
-    chatData.value.push({
-      chat_id: chatId,
-      role_id: roleId.value,
-      type: 'reply',
-      id: randString(32),
-      icon: _role['icon'],
-      content: '',
-    });
-    
-    disableInput(false);
-    
-    // 发送编辑后的消息
-    store.socket.conn.send(
-      JSON.stringify({
-        channel: 'chat',
-        type: 'text',
-        body: {
-          role_id: roleId.value,
-          model_id: modelID.value,
-          chat_id: chatId.value,
-          content: value,
-          tools: toolSelected.value,
-          stream: stream.value,
-          edit_message: true
-        },
+    roundButton: true,
+  })
+    .then(({ value }) => {
+      if (value.trim() === '') {
+        ElMessage.warning('消息内容不能为空')
+        return
+      }
+
+      // 更新用户消息
+      chatData.value[messageIndex].content = value
+
+      // 移除该消息之后的所有消息
+      chatData.value = chatData.value.slice(0, messageIndex + 1)
+
+      // 添加空回复消息
+      const _role = getRoleById(roleId.value)
+      chatData.value.push({
+        chat_id: chatId,
+        role_id: roleId.value,
+        type: 'reply',
+        id: randString(32),
+        icon: _role['icon'],
+        content: '',
       })
-    );
-  }).catch(() => {
-    // 取消编辑
-  });
+
+      disableInput(false)
+
+      // 发送编辑后的消息
+      store.socket.conn.send(
+        JSON.stringify({
+          channel: 'chat',
+          type: 'text',
+          body: {
+            role_id: roleId.value,
+            model_id: modelID.value,
+            chat_id: chatId.value,
+            content: value,
+            tools: toolSelected.value,
+            stream: stream.value,
+            edit_message: true,
+          },
+        })
+      )
+    })
+    .catch(() => {
+      // 取消编辑
+    })
 }
 
 const chatName = ref('')
@@ -1374,11 +1384,11 @@ const realtimeChat = () => {
 </script>
 
 <style scoped lang="stylus">
-@import "@/assets/css/chat-plus.styl"
+@import '../assets/css/chat-plus.styl'
 </style>
 
 <style lang="stylus">
-@import '@/assets/css/markdown/vue.css';
+@import '../assets/css/markdown/vue.css';
 .notice-dialog {
   .el-dialog__header {
     padding-bottom 0

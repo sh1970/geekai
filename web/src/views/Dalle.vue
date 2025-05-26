@@ -288,16 +288,16 @@
 <script setup>
 import nodata from '@/assets/img/no-data.png'
 
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { Delete, InfoFilled, Picture } from '@element-plus/icons-vue'
-import { httpGet, httpPost } from '@/utils/http'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import Clipboard from 'clipboard'
+import BackTop from '@/components/BackTop.vue'
+import TaskList from '@/components/TaskList.vue'
 import { checkSession, getSystemInfo } from '@/store/cache'
 import { useSharedStore } from '@/store/sharedata'
-import TaskList from '@/components/TaskList.vue'
-import BackTop from '@/components/BackTop.vue'
 import { showMessageError, showMessageOK } from '@/utils/dialog'
+import { httpGet, httpPost } from '@/utils/http'
+import { Delete, InfoFilled } from '@element-plus/icons-vue'
+import Clipboard from 'clipboard'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { LazyImg, Waterfall } from 'vue-waterfall-plugin-next'
 import 'vue-waterfall-plugin-next/dist/style.css'
 
@@ -585,7 +585,7 @@ const changeModel = (model) => {
 }
 </script>
 
-<style lang="stylus">
-@import '@/assets/css/image-dall.styl';
-@import '@/assets/css/custom-scroll.styl';
+<style lang="stylus" scoped>
+@import '../assets/css/image-dall.styl';
+@import '../assets/css/custom-scroll.styl';
 </style>

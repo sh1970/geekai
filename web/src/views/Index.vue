@@ -84,6 +84,7 @@
 import FooterBar from '@/components/FooterBar.vue'
 import ThemeChange from '@/components/ThemeChange.vue'
 import { checkSession, getLicenseInfo, getSystemInfo } from '@/store/cache'
+import { removeUserToken } from '@/store/session'
 import { httpGet } from '@/utils/http'
 import { isMobile } from '@/utils/libs'
 import { ElMessage } from 'element-plus'
@@ -211,12 +212,12 @@ const logout = function () {
       removeUserToken()
       router.push('/login')
     })
-    .catch(() => {
-      ElMessage.error('注销失败！')
+    .catch((e) => {
+      ElMessage.error('注销失败：' + e.message)
     })
 }
 </script>
 
 <style lang="stylus" scoped>
-@import "@/assets/css/index.styl"
+@import '../assets/css/index.styl'
 </style>

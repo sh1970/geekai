@@ -567,38 +567,34 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="修复数据" name="fixData">
+      <!-- <el-tab-pane label="修复数据" name="fixData">
         <div class="container">
           <p class="text">
             有些版本升级的时候更新了数据库的结构，比如字段名字改了，需要把之前的字段的值转移到其他字段，这些无法通过简单的
             SQL 语句可以实现的，需要手动写程序修正数据。
           </p>
 
-          <!--          <p class="text">当前版本 v4.1.4 需要修正用户数据，增加了 mobile 和 email 字段，需要把之前用手机号或者邮箱注册的用户的 username 字段数据初始化到 mobile 或者 email 字段。另外，需要把订单的支付渠道从名字称修正为 key。</p>-->
-
-          <!--          <el-text type="danger">请注意：在修复数据前，请先备份好数据库，以免数据丢失！</el-text>-->
-
           <div class="mt-3">
             <el-button type="primary" @click="fixData">立即修复</el-button>
           </div>
         </div>
-      </el-tab-pane>
+      </el-tab-pane> -->
     </el-tabs>
   </div>
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
-import { httpGet, httpPost } from '@/utils/http'
-import Compressor from 'compressorjs'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { CloseBold, InfoFilled, Select, UploadFilled } from '@element-plus/icons-vue'
-import MdEditor from 'md-editor-v3'
-import 'md-editor-v3/lib/style.css'
-import Menu from '@/views/admin/Menu.vue'
-import { copyObj, dateFormat } from '@/utils/libs'
 import ItemsInput from '@/components/ui/ItemsInput.vue'
 import { useSharedStore } from '@/store/sharedata'
+import { httpGet, httpPost } from '@/utils/http'
+import { copyObj, dateFormat } from '@/utils/libs'
+import Menu from '@/views/admin/Menu.vue'
+import { CloseBold, InfoFilled, Select, UploadFilled } from '@element-plus/icons-vue'
+import Compressor from 'compressorjs'
+import { ElMessage } from 'element-plus'
+import MdEditor from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import { onMounted, reactive, ref } from 'vue'
 
 const activeName = ref('basic')
 const system = ref({ models: [] })
@@ -826,29 +822,29 @@ const onUploadImg = (files, callback) => {
     })
 }
 
-const fixData = () => {
-  ElMessageBox.confirm('在修复数据前，请先备份好数据库，以免数据丢失！是否继续操作?', '警告', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  }).then(() => {
-    loading.value = true
-    httpGet('/api/admin/config/fixData')
-      .then(() => {
-        ElMessage.success('数据修复成功')
-        loading.value = false
-      })
-      .catch((e) => {
-        loading.value = false
-        ElMessage.error('数据修复失败：' + e.message)
-      })
-  })
-}
+// const fixData = () => {
+//   ElMessageBox.confirm('在修复数据前，请先备份好数据库，以免数据丢失！是否继续操作?', '警告', {
+//     confirmButtonText: '确定',
+//     cancelButtonText: '取消',
+//     type: 'warning',
+//   }).then(() => {
+//     loading.value = true
+//     httpGet('/api/admin/config/fixData')
+//       .then(() => {
+//         ElMessage.success('数据修复成功')
+//         loading.value = false
+//       })
+//       .catch((e) => {
+//         loading.value = false
+//         ElMessage.error('数据修复失败：' + e.message)
+//       })
+//   })
+// }
 </script>
 
 <style lang="stylus" scoped>
-@import "@/assets/css/admin/form.styl"
-@import "@/assets/css/main.styl"
+@import '../../assets/css/admin/form.styl'
+@import '../../assets/css/main.styl'
 .system-config {
   display flex
   justify-content center

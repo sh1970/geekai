@@ -145,7 +145,6 @@ onMounted(() => {
       }
     })
     .catch((e) => {
-      console.warn(e)
       agreementContent.value =
         '用户在使用本服务前应当阅读并同意本协议。本协议内容包括协议正文及所有本平台已经发布的或将来可能发布的各类规则。所有规则为本协议不可分割的组成部分，与协议正文具有同等法律效力。'
     })
@@ -161,7 +160,6 @@ onMounted(() => {
       }
     })
     .catch((e) => {
-      console.warn(e)
       privacyContent.value =
         '我们非常重视用户的隐私和个人信息保护。您在使用我们的产品与服务时，我们可能会收集和使用您的相关信息。我们希望通过本《隐私政策》向您说明我们在收集和使用您相关信息时对应的处理规则。'
     })
@@ -278,7 +276,7 @@ const openPrivacy = () => {
 </script>
 
 <style lang="stylus" scoped>
-@import "@/assets/css/login.styl"
+@import '../assets/css/login.styl'
 
 .agreement-box
   margin-bottom: 10px

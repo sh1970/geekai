@@ -601,6 +601,6 @@ const onChange = (item) => {
 }
 </script>
 
-<style lang="stylus">
-@import "@/assets/css/mobile/chat-session.styl"
+<style lang="stylus" scoped>
+@import "../../assets/css/mobile/chat-session.styl"
 </style>
