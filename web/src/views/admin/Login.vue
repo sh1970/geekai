@@ -68,8 +68,8 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const title = ref('Geek-AI Console')
-const username = ref(process.env.VUE_APP_ADMIN_USER)
-const password = ref(process.env.VUE_APP_ADMIN_PASS)
+const username = ref(import.meta.env.VITE_ADMIN_USER)
+const password = ref(import.meta.env.VITE_ADMIN_PASS)
 const logo = ref('')
 const enableVerify = ref(false)
 const captchaRef = ref(null)

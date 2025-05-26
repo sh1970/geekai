@@ -168,7 +168,7 @@ const routerViewKey = ref(0)
 const showConfigDialog = ref(false)
 const license = ref({ de_copy: true })
 const showLoginDialog = ref(false)
-const githubURL = ref(process.env.VUE_APP_GITHUB_URL)
+const githubURL = ref(import.meta.env.VITE_GITHUB_URL)
 
 /**
  * 从路径名中提取第一个路径段

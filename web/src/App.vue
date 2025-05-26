@@ -5,93 +5,93 @@
 </template>
 
 <script setup>
-import { ElConfigProvider } from "element-plus";
-import { onMounted, ref, watch } from "vue";
-import { checkSession, getClientId, getSystemInfo } from "@/store/cache";
-import { isChrome, isMobile } from "@/utils/libs";
-import { showMessageInfo } from "@/utils/dialog";
-import { useSharedStore } from "@/store/sharedata";
-import { getUserToken } from "@/store/session";
+import { checkSession, getClientId, getSystemInfo } from '@/store/cache'
+import { getUserToken } from '@/store/session'
+import { useSharedStore } from '@/store/sharedata'
+import { showMessageInfo } from '@/utils/dialog'
+import { isChrome, isMobile } from '@/utils/libs'
+import { ElConfigProvider } from 'element-plus'
+import { onMounted, ref, watch } from 'vue'
 
 const debounce = (fn, delay) => {
-  let timer;
+  let timer
   return (...args) => {
     if (timer) {
-      clearTimeout(timer);
+      clearTimeout(timer)
     }
     timer = setTimeout(() => {
-      fn(...args);
-    }, delay);
-  };
-};
+      fn(...args)
+    }, delay)
+  }
+}
 
-const _ResizeObserver = window.ResizeObserver;
+const _ResizeObserver = window.ResizeObserver
 window.ResizeObserver = class ResizeObserver extends _ResizeObserver {
   constructor(callback) {
-    callback = debounce(callback, 200);
-    super(callback);
+    callback = debounce(callback, 200)
+    super(callback)
   }
-};
+}
 
-const store = useSharedStore();
+const store = useSharedStore()
 onMounted(() => {
   // 获取系统参数
   getSystemInfo().then((res) => {
-    const link = document.createElement("link");
-    link.rel = "shortcut icon";
-    link.href = res.data.logo;
-    document.head.appendChild(link);
-  });
+    const link = document.createElement('link')
+    link.rel = 'shortcut icon'
+    link.href = res.data.logo
+    document.head.appendChild(link)
+  })
   if (!isChrome() && !isMobile()) {
-    showMessageInfo("建议使用 Chrome 浏览器以获得最佳体验。");
+    showMessageInfo('建议使用 Chrome 浏览器以获得最佳体验。')
   }
 
   checkSession()
     .then(() => {
-      store.setIsLogin(true);
+      store.setIsLogin(true)
     })
-    .catch(() => {});
+    .catch(() => {})
 
   // 设置主题
-  document.documentElement.setAttribute("data-theme", store.theme);
-});
+  document.documentElement.setAttribute('data-theme', store.theme)
+})
 
 watch(
   () => store.isLogin,
   (val) => {
     if (val) {
-      connect();
+      connect()
     }
   }
-);
+)
 
-const handler = ref(0);
+const handler = ref(0)
 // 初始化 websocket 连接
 const connect = () => {
-  let host = process.env.VUE_APP_WS_HOST;
-  if (host === "") {
-    if (location.protocol === "https:") {
-      host = "wss://" + location.host;
+  let host = import.meta.env.VITE_WS_HOST
+  if (host === '') {
+    if (location.protocol === 'https:') {
+      host = 'wss://' + location.host
     } else {
-      host = "ws://" + location.host;
+      host = 'ws://' + location.host
     }
   }
-  const clientId = getClientId();
-  const _socket = new WebSocket(host + `/api/ws?client_id=${clientId}`, ["token", getUserToken()]);
-  _socket.addEventListener("open", () => {
-    console.log("WebSocket 已连接");
+  const clientId = getClientId()
+  const _socket = new WebSocket(host + `/api/ws?client_id=${clientId}`, ['token', getUserToken()])
+  _socket.addEventListener('open', () => {
+    console.log('WebSocket 已连接')
     handler.value = setInterval(() => {
       if (_socket.readyState === WebSocket.OPEN) {
-        _socket.send(JSON.stringify({ type: "ping" }));
+        _socket.send(JSON.stringify({ type: 'ping' }))
       }
-    }, 5000);
-  });
-  _socket.addEventListener("close", () => {
-    clearInterval(handler.value);
-    connect();
-  });
-  store.setSocket(_socket);
-};
+    }, 5000)
+  })
+  _socket.addEventListener('close', () => {
+    clearInterval(handler.value)
+    connect()
+  })
+  store.setSocket(_socket)
+}
 
 // 打印 banner
 const banner = `
@@ -104,20 +104,23 @@ const banner = `
 '88.    .88'  888    .o 888    .o  888  88b.   .8'      888.   888  
   Y8bood8P'    Y8bod8P'  Y8bod8P' o888o o888o o88o     o8888o o888o
 
-  `;
-console.log("%c" + banner + "", "color: purple;font-size: 18px;");
+  `
+console.log('%c' + banner + '', 'color: purple;font-size: 18px;')
 
-console.log("%c感谢大家为 GeekAI 做出的卓越贡献！", "color: green;font-size: 40px;font-family: '微软雅黑';");
 console.log(
-  "%c项目源码：https://github.com/yangjian102621/geekai %c 您的 star 对我们非常重要！",
+  '%c感谢大家为 GeekAI 做出的卓越贡献！',
+  "color: green;font-size: 40px;font-family: '微软雅黑';"
+)
+console.log(
+  '%c项目源码：https://github.com/yangjian102621/geekai %c 您的 star 对我们非常重要！',
   "color: green;font-size: 20px;font-family: '微软雅黑';",
   "color: red;font-size: 20px;font-family: '微软雅黑';"
-);
-
-console.log("%c 愿你出走半生，归来仍是少年！大奉武夫许七安，前来凿阵！", "color: #7c39ed;font-size: 18px;font-family: '微软雅黑';");
+)
 </script>
 
 <style lang="stylus">
+@import '@/assets/iconfont/iconfont.css'
+
 html, body {
   margin: 0;
   padding: 0;
@@ -173,6 +176,4 @@ html, body {
   background #D6FBCC
   color #07C160
 }
-
-@import '@/assets/iconfont/iconfont.css'
 </style>

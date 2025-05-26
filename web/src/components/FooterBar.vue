@@ -17,45 +17,45 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
-import { showMessageError } from "@/utils/dialog";
-import { getLicenseInfo, getSystemInfo } from "@/store/cache";
+import { getLicenseInfo, getSystemInfo } from '@/store/cache'
+import { showMessageError } from '@/utils/dialog'
+import { ref } from 'vue'
 
-const title = ref("");
-const version = ref(process.env.VUE_APP_VERSION);
-const gitURL = ref(process.env.VUE_APP_GITHUB_URL);
-const copyRight = ref("");
-const icp = ref("");
-const license = ref({});
+const title = ref('')
+const version = ref(import.meta.env.VITE_VERSION)
+const gitURL = ref(import.meta.env.VITE_GITHUB_URL)
+const copyRight = ref('')
+const icp = ref('')
+const license = ref({})
 const props = defineProps({
   textColor: {
     type: String,
-    default: "#ffffff"
-  }
-});
+    default: '#ffffff',
+  },
+})
 
 // 获取系统配置
 getSystemInfo()
   .then((res) => {
-    title.value = res.data.title ?? process.env.VUE_APP_TITLE;
+    title.value = res.data.title ?? import.meta.env.VITE_TITLE
     copyRight.value =
-      (res.data.copyright ? res.data.copyright : "极客学长") +
-      " © 2023 - " +
+      (res.data.copyright ? res.data.copyright : '极客学长') +
+      ' © 2023 - ' +
       new Date().getFullYear() +
-      " All rights reserved";
-    icp.value = res.data.icp;
+      ' All rights reserved'
+    icp.value = res.data.icp
   })
   .catch((e) => {
-    showMessageError("获取系统配置失败：" + e.message);
-  });
+    showMessageError('获取系统配置失败：' + e.message)
+  })
 
 getLicenseInfo()
   .then((res) => {
-    license.value = res.data;
+    license.value = res.data
   })
   .catch((e) => {
-    showMessageError("获取 License 失败：" + e.message);
-  });
+    showMessageError('获取 License 失败：' + e.message)
+  })
 </script>
 
 <style scoped lang="stylus">

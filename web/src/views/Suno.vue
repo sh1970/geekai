@@ -46,7 +46,7 @@
                 placement="right"
                 :width="200"
                 trigger="hover"
-                content="描述您想要的音乐风格（例如“原声流行音乐”）。Sunos 模特无法识别艺术家的名字，但能够理解音乐流派和氛围。"
+                content="描述您想要的音乐风格（例如"原声流行音乐"）。Sunos 模特无法识别艺术家的名字，但能够理解音乐流派和氛围。"
               >
                 <template #reference>
                   <el-icon>
@@ -270,23 +270,23 @@
 <script setup>
 import nodata from "@/assets/img/no-data.png";
 
-import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
-import { Delete, InfoFilled } from "@element-plus/icons-vue";
+import MusicPlayer from "@/components/MusicPlayer.vue";
+import BlackDialog from "@/components/ui/BlackDialog.vue";
+import BlackInput from "@/components/ui/BlackInput.vue";
 import BlackSelect from "@/components/ui/BlackSelect.vue";
 import BlackSwitch from "@/components/ui/BlackSwitch.vue";
-import BlackInput from "@/components/ui/BlackInput.vue";
-import MusicPlayer from "@/components/MusicPlayer.vue";
-import { compact } from "lodash";
-import { httpDownload, httpGet, httpPost } from "@/utils/http";
-import { closeLoading, showLoading, showMessageError, showMessageOK } from "@/utils/dialog";
-import { checkSession } from "@/store/cache";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { formatTime, replaceImg } from "@/utils/libs";
-import Clipboard from "clipboard";
-import BlackDialog from "@/components/ui/BlackDialog.vue";
-import Compressor from "compressorjs";
 import Generating from "@/components/ui/Generating.vue";
+import { checkSession } from "@/store/cache";
 import { useSharedStore } from "@/store/sharedata";
+import { closeLoading, showLoading, showMessageError, showMessageOK } from "@/utils/dialog";
+import { httpDownload, httpGet, httpPost } from "@/utils/http";
+import { formatTime, replaceImg } from "@/utils/libs";
+import { Delete, InfoFilled } from "@element-plus/icons-vue";
+import Clipboard from "clipboard";
+import Compressor from "compressorjs";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { compact } from "lodash";
+import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 
 const custom = ref(false);
 const models = ref([
@@ -455,7 +455,7 @@ const merge = (item) => {
 // 下载歌曲
 const download = (item) => {
   const url = replaceImg(item.audio_url);
-  const downloadURL = `${process.env.VUE_APP_API_HOST}/api/download?url=${url}`;
+  const downloadURL = `${import.meta.env.VITE_API_HOST}/api/download?url=${url}`;
   // parse filename
   const urlObj = new URL(url);
   const fileName = urlObj.pathname.split("/").pop();

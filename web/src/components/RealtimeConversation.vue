@@ -38,11 +38,7 @@
       <div class="call-controls">
         <el-tooltip content="长按发送语音" placement="top">
           <ripple-button>
-            <button
-              class="call-button answer"
-              @mousedown="startRecording"
-              @mouseup="stopRecording"
-            >
+            <button class="call-button answer" @mousedown="startRecording" @mouseup="stopRecording">
               <i class="iconfont icon-mic-bold"></i>
             </button>
           </ripple-button>
@@ -58,159 +54,155 @@
 </template>
 
 <script setup>
-import RippleButton from "@/components/ui/RippleButton.vue";
-import { ref, onMounted, onUnmounted } from "vue";
-import { RealtimeClient } from "@openai/realtime-api-beta";
-import { WavRecorder, WavStreamPlayer } from "@/lib/wavtools/index.js";
-import { instructions } from "@/utils/conversation_config.js";
-import { WavRenderer } from "@/utils/wav_renderer";
-import { showMessageError } from "@/utils/dialog";
-import { getUserToken } from "@/store/session";
+import RippleButton from '@/components/ui/RippleButton.vue'
+import { WavRecorder, WavStreamPlayer } from '@/lib/wavtools/index.js'
+import { getUserToken } from '@/store/session'
+import { instructions } from '@/utils/conversation_config.js'
+import { showMessageError } from '@/utils/dialog'
+import { WavRenderer } from '@/utils/wav_renderer'
+import { RealtimeClient } from '@openai/realtime-api-beta'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 // eslint-disable-next-line no-unused-vars,no-undef
 const props = defineProps({
   height: {
     type: String,
-    default: "100vh"
-  }
-});
+    default: '100vh',
+  },
+})
 // eslint-disable-next-line no-undef
-const emits = defineEmits(["close"]);
+const emits = defineEmits(['close'])
 
 /********************** connection animation code *************************/
-const fullText = "正在接通中...";
-const connectingText = ref("");
-let index = 0;
+const fullText = '正在接通中...'
+const connectingText = ref('')
+let index = 0
 const typeText = () => {
   if (index < fullText.length) {
-    connectingText.value += fullText[index];
-    index++;
-    setTimeout(typeText, 200); // 每300毫秒显示一个字
+    connectingText.value += fullText[index]
+    index++
+    setTimeout(typeText, 200) // 每300毫秒显示一个字
   } else {
     setTimeout(() => {
-      connectingText.value = "";
-      index = 0;
-      typeText();
-    }, 1000); // 等待1秒后重新开始
+      connectingText.value = ''
+      index = 0
+      typeText()
+    }, 1000) // 等待1秒后重新开始
   }
-};
+}
 /*************************** end of code ****************************************/
 
 /********************** conversation process code ***************************/
-const leftVoiceActive = ref(false);
-const rightVoiceActive = ref(false);
+const leftVoiceActive = ref(false)
+const rightVoiceActive = ref(false)
 
 const animateVoice = () => {
-  leftVoiceActive.value = Math.random() > 0.5;
-  rightVoiceActive.value = Math.random() > 0.5;
-};
+  leftVoiceActive.value = Math.random() > 0.5
+  rightVoiceActive.value = Math.random() > 0.5
+}
 
-const wavRecorder = ref(new WavRecorder({ sampleRate: 24000 }));
-const wavStreamPlayer = ref(new WavStreamPlayer({ sampleRate: 24000 }));
-let host = process.env.VUE_APP_WS_HOST;
-if (host === "") {
-  if (location.protocol === "https:") {
-    host = "wss://" + location.host;
+const wavRecorder = ref(new WavRecorder({ sampleRate: 24000 }))
+const wavStreamPlayer = ref(new WavStreamPlayer({ sampleRate: 24000 }))
+let host = import.meta.env.VITE_WS_HOST
+if (host === '') {
+  if (location.protocol === 'https:') {
+    host = 'wss://' + location.host
   } else {
-    host = "ws://" + location.host;
+    host = 'ws://' + location.host
   }
 }
 const client = ref(
   new RealtimeClient({
     url: `${host}/api/realtime`,
     apiKey: getUserToken(),
-    dangerouslyAllowAPIKeyInBrowser: true
+    dangerouslyAllowAPIKeyInBrowser: true,
   })
-);
+)
 // // Set up client instructions and transcription
 client.value.updateSession({
   instructions: instructions,
   turn_detection: null,
-  input_audio_transcription: { model: "whisper-1" },
-  voice: "alloy"
-});
+  input_audio_transcription: { model: 'whisper-1' },
+  voice: 'alloy',
+})
 
 // set voice wave canvas
-const clientCanvasRef = ref(null);
-const serverCanvasRef = ref(null);
-const isConnected = ref(false);
-const isRecording = ref(false);
-const backgroundAudio = ref(null);
-const hangUpAudio = ref(null);
+const clientCanvasRef = ref(null)
+const serverCanvasRef = ref(null)
+const isConnected = ref(false)
+const isRecording = ref(false)
+const backgroundAudio = ref(null)
+const hangUpAudio = ref(null)
 function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 const connect = async () => {
   if (isConnected.value) {
-    return;
+    return
   }
   // 播放背景音乐
   if (backgroundAudio.value) {
     backgroundAudio.value.play().catch((error) => {
-      console.error("播放失败，可能是浏览器的自动播放策略导致的:", error);
-    });
+      console.error('播放失败，可能是浏览器的自动播放策略导致的:', error)
+    })
   }
   // 模拟拨号延时
-  await sleep(3000);
+  await sleep(3000)
   try {
-    await client.value.connect();
-    await wavRecorder.value.begin();
-    await wavStreamPlayer.value.connect();
-    console.log("对话连接成功！");
+    await client.value.connect()
+    await wavRecorder.value.begin()
+    await wavStreamPlayer.value.connect()
+    console.log('对话连接成功！')
     if (!client.value.isConnected()) {
-      return;
+      return
     }
 
-    isConnected.value = true;
-    backgroundAudio.value?.pause();
-    backgroundAudio.value.currentTime = 0;
+    isConnected.value = true
+    backgroundAudio.value?.pause()
+    backgroundAudio.value.currentTime = 0
     client.value.sendUserMessageContent([
       {
-        type: "input_text",
-        text: "你好，我是极客学长!"
-      }
-    ]);
-    if (client.value.getTurnDetectionType() === "server_vad") {
-      await wavRecorder.value.record((data) =>
-        client.value.appendInputAudio(data.mono)
-      );
+        type: 'input_text',
+        text: '你好，我是极客学长!',
+      },
+    ])
+    if (client.value.getTurnDetectionType() === 'server_vad') {
+      await wavRecorder.value.record((data) => client.value.appendInputAudio(data.mono))
     }
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
-};
+}
 
 // 开始语音输入
 const startRecording = async () => {
   if (isRecording.value) {
-    return;
+    return
   }
 
-  isRecording.value = true;
+  isRecording.value = true
   try {
-    const trackSampleOffset = await wavStreamPlayer.value.interrupt();
+    const trackSampleOffset = await wavStreamPlayer.value.interrupt()
     if (trackSampleOffset?.trackId) {
-      const { trackId, offset } = trackSampleOffset;
-      client.value.cancelResponse(trackId, offset);
+      const { trackId, offset } = trackSampleOffset
+      client.value.cancelResponse(trackId, offset)
     }
-    await wavRecorder.value.record((data) =>
-      client.value.appendInputAudio(data.mono)
-    );
+    await wavRecorder.value.record((data) => client.value.appendInputAudio(data.mono))
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
-};
+}
 
 // 结束语音输入
 const stopRecording = async () => {
   try {
-    isRecording.value = false;
-    await wavRecorder.value.pause();
-    client.value.createResponse();
+    isRecording.value = false
+    await wavRecorder.value.pause()
+    client.value.createResponse()
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
-};
+}
 
 // const changeTurnEndType = async (value) => {
 //   if (value === 'none' && wavRecorder.value.getStatus() === 'recording') {
@@ -228,108 +220,108 @@ const stopRecording = async () => {
 // 初始化 WaveRecorder 组件和 RealtimeClient 事件处理
 const initialize = async () => {
   // Set up render loops for the visualization canvas
-  let isLoaded = true;
+  let isLoaded = true
   const render = () => {
     if (isLoaded) {
       if (clientCanvasRef.value) {
-        const canvas = clientCanvasRef.value;
+        const canvas = clientCanvasRef.value
         if (!canvas.width || !canvas.height) {
-          canvas.width = canvas.offsetWidth;
-          canvas.height = canvas.offsetHeight;
+          canvas.width = canvas.offsetWidth
+          canvas.height = canvas.offsetHeight
         }
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext('2d')
         if (ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
           const result = wavRecorder.value.recording
-            ? wavRecorder.value.getFrequencies("voice")
-            : { values: new Float32Array([0]) };
-          WavRenderer.drawBars(canvas, ctx, result.values, "#0099ff", 10, 0, 8);
+            ? wavRecorder.value.getFrequencies('voice')
+            : { values: new Float32Array([0]) }
+          WavRenderer.drawBars(canvas, ctx, result.values, '#0099ff', 10, 0, 8)
         }
       }
       if (serverCanvasRef.value) {
-        const canvas = serverCanvasRef.value;
+        const canvas = serverCanvasRef.value
         if (!canvas.width || !canvas.height) {
-          canvas.width = canvas.offsetWidth;
-          canvas.height = canvas.offsetHeight;
+          canvas.width = canvas.offsetWidth
+          canvas.height = canvas.offsetHeight
         }
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext('2d')
         if (ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
           const result = wavStreamPlayer.value.analyser
-            ? wavStreamPlayer.value.getFrequencies("voice")
-            : { values: new Float32Array([0]) };
-          WavRenderer.drawBars(canvas, ctx, result.values, "#009900", 10, 0, 8);
+            ? wavStreamPlayer.value.getFrequencies('voice')
+            : { values: new Float32Array([0]) }
+          WavRenderer.drawBars(canvas, ctx, result.values, '#009900', 10, 0, 8)
         }
       }
-      requestAnimationFrame(render);
+      requestAnimationFrame(render)
     }
-  };
-  render();
+  }
+  render()
 
-  client.value.on("error", (event) => {
-    showMessageError(event.error);
-  });
+  client.value.on('error', (event) => {
+    showMessageError(event.error)
+  })
 
-  client.value.on("realtime.event", (re) => {
-    if (re.event.type === "error") {
-      showMessageError(re.event.error);
+  client.value.on('realtime.event', (re) => {
+    if (re.event.type === 'error') {
+      showMessageError(re.event.error)
     }
-  });
+  })
 
-  client.value.on("conversation.interrupted", async () => {
-    const trackSampleOffset = await wavStreamPlayer.value.interrupt();
+  client.value.on('conversation.interrupted', async () => {
+    const trackSampleOffset = await wavStreamPlayer.value.interrupt()
     if (trackSampleOffset?.trackId) {
-      const { trackId, offset } = trackSampleOffset;
-      client.value.cancelResponse(trackId, offset);
+      const { trackId, offset } = trackSampleOffset
+      client.value.cancelResponse(trackId, offset)
     }
-  });
+  })
 
-  client.value.on("conversation.updated", async ({ item, delta }) => {
+  client.value.on('conversation.updated', async ({ item, delta }) => {
     // console.log('item updated', item, delta)
     if (delta?.audio) {
-      wavStreamPlayer.value.add16BitPCM(delta.audio, item.id);
+      wavStreamPlayer.value.add16BitPCM(delta.audio, item.id)
     }
-  });
-};
+  })
+}
 
-const voiceInterval = ref(null);
+const voiceInterval = ref(null)
 onMounted(() => {
-  initialize();
+  initialize()
   // 启动聊天进行中的动画
-  voiceInterval.value = setInterval(animateVoice, 200);
-  typeText();
-});
+  voiceInterval.value = setInterval(animateVoice, 200)
+  typeText()
+})
 
 onUnmounted(() => {
-  clearInterval(voiceInterval.value);
-  client.value.reset();
-});
+  clearInterval(voiceInterval.value)
+  client.value.reset()
+})
 
 // 挂断通话
 const hangUp = async () => {
   try {
-    isConnected.value = false;
+    isConnected.value = false
     // 停止播放拨号音乐
     if (backgroundAudio.value?.currentTime) {
-      backgroundAudio.value?.pause();
-      backgroundAudio.value.currentTime = 0;
+      backgroundAudio.value?.pause()
+      backgroundAudio.value.currentTime = 0
     }
     // 断开客户端的连接
-    client.value.reset();
+    client.value.reset()
     // 中断语音输入和输出服务
-    await wavRecorder.value.end();
-    await wavStreamPlayer.value.interrupt();
+    await wavRecorder.value.end()
+    await wavStreamPlayer.value.interrupt()
   } catch (e) {
-    console.error(e);
+    console.error(e)
   } finally {
     // 播放挂断音乐
-    hangUpAudio.value?.play();
-    emits("close");
+    hangUpAudio.value?.play()
+    emits('close')
   }
-};
+}
 
 // eslint-disable-next-line no-undef
-defineExpose({ connect, hangUp });
+defineExpose({ connect, hangUp })
 </script>
 
 <style scoped lang="stylus">

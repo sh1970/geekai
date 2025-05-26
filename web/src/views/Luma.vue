@@ -15,11 +15,25 @@
       <div class="prompt-container">
         <div class="input-container">
           <div class="upload-icon" v-if="images.length < 2">
-            <el-upload class="avatar-uploader" :auto-upload="true" :show-file-list="false" :http-request="upload" accept=".jpg,.png,.jpeg">
+            <el-upload
+              class="avatar-uploader"
+              :auto-upload="true"
+              :show-file-list="false"
+              :http-request="upload"
+              accept=".jpg,.png,.jpeg"
+            >
               <i class="iconfont icon-image"></i>
             </el-upload>
           </div>
-          <textarea class="prompt-input" :rows="row" v-model="formData.prompt" maxlength="2000" placeholder="请输入提示词或者上传图片" autofocus> </textarea>
+          <textarea
+            class="prompt-input"
+            :rows="row"
+            v-model="formData.prompt"
+            maxlength="2000"
+            placeholder="请输入提示词或者上传图片"
+            autofocus
+          >
+          </textarea>
           <div class="send-icon" @click="create">
             <i class="iconfont icon-send"></i>
           </div>
@@ -44,7 +58,11 @@
       </div>
     </div>
 
-    <el-container class="video-container" v-loading="loading" element-loading-background="rgba(100,100,100,0.3)">
+    <el-container
+      class="video-container"
+      v-loading="loading"
+      element-loading-background="rgba(100,100,100,0.3)"
+    >
       <h2 class="h-title text-2xl mb-5 mt-2">你的作品</h2>
 
       <div class="list-box" v-if="!noData">
@@ -53,7 +71,15 @@
             <div class="left">
               <div class="container">
                 <div v-if="item.progress === 100">
-                  <video class="video" :src="replaceImg(item.video_url)" preload="auto" loop="loop" muted="muted">您的浏览器不支持视频播放</video>
+                  <video
+                    class="video"
+                    :src="replaceImg(item.video_url)"
+                    preload="auto"
+                    loop="loop"
+                    muted="muted"
+                  >
+                    您的浏览器不支持视频播放
+                  </video>
                   <button class="play flex justify-center items-center" @click="play(item)">
                     <img src="/images/play.svg" alt="" />
                   </button>
@@ -63,7 +89,9 @@
               </div>
             </div>
             <div class="center">
-              <div class="failed" v-if="item.progress === 101">任务执行失败：{{ item.err_msg }}，任务提示词：{{ item.prompt }}</div>
+              <div class="failed" v-if="item.progress === 101">
+                任务执行失败：{{ item.err_msg }}，任务提示词：{{ item.prompt }}
+              </div>
               <div class="prompt" v-else>{{ item.prompt }}</div>
             </div>
             <div class="right" v-if="item.progress === 100">
@@ -100,7 +128,12 @@
           </div>
         </div>
       </div>
-      <el-empty :image-size="100" :image="nodata" description="没有任何作品，赶紧去创作吧！" v-else />
+      <el-empty
+        :image-size="100"
+        :image="nodata"
+        description="没有任何作品，赶紧去创作吧！"
+        v-else
+      />
 
       <div class="pagination">
         <el-pagination
@@ -116,8 +149,22 @@
         />
       </div>
     </el-container>
-    <black-dialog v-model:show="showDialog" title="预览视频" hide-footer @cancal="showDialog = false" width="auto">
-      <video style="max-width: 90vw; max-height: 90vh" :src="currentVideoUrl" preload="auto" :autoplay="true" loop="loop" muted="muted" v-show="showDialog">
+    <black-dialog
+      v-model:show="showDialog"
+      title="预览视频"
+      hide-footer
+      @cancal="showDialog = false"
+      width="auto"
+    >
+      <video
+        style="max-width: 90vw; max-height: 90vh"
+        :src="currentVideoUrl"
+        preload="auto"
+        :autoplay="true"
+        loop="loop"
+        muted="muted"
+        v-show="showDialog"
+      >
         您的浏览器不支持视频播放
       </video>
     </black-dialog>
@@ -125,215 +172,214 @@
 </template>
 
 <script setup>
-import nodata from "@/assets/img/no-data.png";
+import nodata from '@/assets/img/no-data.png'
 
-import { onMounted, onUnmounted, reactive, ref } from "vue";
-import { CircleCloseFilled } from "@element-plus/icons-vue";
-import { httpDownload, httpPost, httpGet } from "@/utils/http";
-import { checkSession } from "@/store/cache";
-import { closeLoading, showLoading, showMessageError, showMessageOK } from "@/utils/dialog";
-import { replaceImg } from "@/utils/libs";
-import { ElMessage, ElMessageBox } from "element-plus";
-import BlackSwitch from "@/components/ui/BlackSwitch.vue";
-import Generating from "@/components/ui/Generating.vue";
-import BlackDialog from "@/components/ui/BlackDialog.vue";
-import Clipboard from "clipboard";
-const showDialog = ref(false);
-const currentVideoUrl = ref("");
-const row = ref(1);
-const images = ref([]);
+import BlackDialog from '@/components/ui/BlackDialog.vue'
+import Generating from '@/components/ui/Generating.vue'
+import { checkSession } from '@/store/cache'
+import { closeLoading, showLoading, showMessageError, showMessageOK } from '@/utils/dialog'
+import { httpDownload, httpGet, httpPost } from '@/utils/http'
+import { replaceImg } from '@/utils/libs'
+import { CircleCloseFilled } from '@element-plus/icons-vue'
+import Clipboard from 'clipboard'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { onMounted, onUnmounted, reactive, ref } from 'vue'
+const showDialog = ref(false)
+const currentVideoUrl = ref('')
+const row = ref(1)
+const images = ref([])
 
 const formData = reactive({
-  prompt: "",
+  prompt: '',
   expand_prompt: false,
   loop: false,
-  first_frame_img: "",
-  end_frame_img: "",
-});
+  first_frame_img: '',
+  end_frame_img: '',
+})
 
-const loading = ref(false);
-const list = ref([]);
-const noData = ref(true);
-const page = ref(1);
-const pageSize = ref(10);
-const total = ref(0);
-const taskPulling = ref(true);
-const clipboard = ref(null);
-const pullHandler = ref(null);
+const loading = ref(false)
+const list = ref([])
+const noData = ref(true)
+const page = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+const taskPulling = ref(true)
+const clipboard = ref(null)
+const pullHandler = ref(null)
 
 onMounted(() => {
   checkSession().then(() => {
-    fetchData(1);
+    fetchData(1)
     // 设置轮询
     pullHandler.value = setInterval(() => {
       if (taskPulling.value) {
-        fetchData(1);
+        fetchData(1)
       }
-    }, 5000);
-  });
+    }, 5000)
+  })
 
-  clipboard.value = new Clipboard(".copy-prompt");
-  clipboard.value.on("success", () => {
-    ElMessage.success("复制成功！");
-  });
-});
+  clipboard.value = new Clipboard('.copy-prompt')
+  clipboard.value.on('success', () => {
+    ElMessage.success('复制成功！')
+  })
+})
 
 onUnmounted(() => {
-  clipboard.value.destroy();
+  clipboard.value.destroy()
   if (pullHandler.value) {
-    clearInterval(pullHandler.value);
+    clearInterval(pullHandler.value)
   }
-});
+})
 
 const download = (item) => {
-  const url = replaceImg(item.video_url);
-  const downloadURL = `${process.env.VUE_APP_API_HOST}/api/download?url=${url}`;
-  const urlObj = new URL(url);
-  const fileName = urlObj.pathname.split("/").pop();
-  item.downloading = true;
+  const url = replaceImg(item.video_url)
+  const downloadURL = `${import.meta.env.VITE_API_HOST}/api/download?url=${url}`
+  const urlObj = new URL(url)
+  const fileName = urlObj.pathname.split('/').pop()
+  item.downloading = true
   httpDownload(downloadURL)
     .then((response) => {
-      const blob = new Blob([response.data]);
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-      item.downloading = false;
+      const blob = new Blob([response.data])
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = fileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(link.href)
+      item.downloading = false
     })
     .catch(() => {
-      showMessageError("下载失败");
-      item.downloading = false;
-    });
-};
+      showMessageError('下载失败')
+      item.downloading = false
+    })
+}
 
 const play = (item) => {
-  currentVideoUrl.value = replaceImg(item.video_url);
-  showDialog.value = true;
-};
+  currentVideoUrl.value = replaceImg(item.video_url)
+  showDialog.value = true
+}
 
 const removeJob = (item) => {
-  ElMessageBox.confirm("此操作将会删除任务相关文件，继续操作码?", "删除提示", {
-    confirmButtonText: "确认",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('此操作将会删除任务相关文件，继续操作码?', '删除提示', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning',
   })
     .then(() => {
-      httpGet("/api/video/remove", { id: item.id })
+      httpGet('/api/video/remove', { id: item.id })
         .then(() => {
-          ElMessage.success("任务删除成功");
-          fetchData();
+          ElMessage.success('任务删除成功')
+          fetchData()
         })
         .catch((e) => {
-          ElMessage.error("任务删除失败：" + e.message);
-        });
+          ElMessage.error('任务删除失败：' + e.message)
+        })
     })
-    .catch(() => {});
-};
+    .catch(() => {})
+}
 
 const publishJob = (item) => {
-  httpGet("/api/video/publish", { id: item.id, publish: item.publish })
+  httpGet('/api/video/publish', { id: item.id, publish: item.publish })
     .then(() => {
-      ElMessage.success("操作成功");
+      ElMessage.success('操作成功')
     })
     .catch((e) => {
-      ElMessage.error("操作失败：" + e.message);
-    });
-};
+      ElMessage.error('操作失败：' + e.message)
+    })
+}
 
 const upload = (file) => {
-  const formData = new FormData();
-  formData.append("file", file.file, file.name);
-  showLoading("正在上传文件...");
-  httpPost("/api/upload", formData)
+  const formData = new FormData()
+  formData.append('file', file.file, file.name)
+  showLoading('正在上传文件...')
+  httpPost('/api/upload', formData)
     .then((res) => {
-      images.value.push(res.data.url);
-      ElMessage.success({ message: "上传成功", duration: 500 });
-      closeLoading();
+      images.value.push(res.data.url)
+      ElMessage.success({ message: '上传成功', duration: 500 })
+      closeLoading()
     })
     .catch((e) => {
-      ElMessage.error("图片上传失败:" + e.message);
-      closeLoading();
-    });
-};
+      ElMessage.error('图片上传失败:' + e.message)
+      closeLoading()
+    })
+}
 
 const remove = (img) => {
-  images.value = images.value.filter((item) => item !== img);
-};
+  images.value = images.value.filter((item) => item !== img)
+}
 
 const switchReverse = () => {
-  images.value = images.value.reverse();
-};
+  images.value = images.value.reverse()
+}
 
 const fetchData = (_page) => {
   if (_page) {
-    page.value = _page;
+    page.value = _page
   }
-  httpGet("/api/video/list", {
+  httpGet('/api/video/list', {
     page: page.value,
     page_size: pageSize.value,
-    type: "luma",
+    type: 'luma',
   })
     .then((res) => {
-      total.value = res.data.total;
-      let needPull = false;
-      const items = [];
+      total.value = res.data.total
+      let needPull = false
+      const items = []
       for (let v of res.data.items) {
         if (v.progress === 0 || v.progress === 102) {
-          needPull = true;
+          needPull = true
         }
-        items.push(v);
+        items.push(v)
       }
-      loading.value = false;
-      taskPulling.value = needPull;
+      loading.value = false
+      taskPulling.value = needPull
       if (JSON.stringify(list.value) !== JSON.stringify(items)) {
-        list.value = items;
+        list.value = items
       }
-      noData.value = list.value.length === 0;
+      noData.value = list.value.length === 0
     })
     .catch(() => {
-      loading.value = false;
-      noData.value = true;
-    });
-};
+      loading.value = false
+      noData.value = true
+    })
+}
 
 const create = () => {
-  const len = images.value.length;
+  const len = images.value.length
   if (len) {
-    formData.first_frame_img = replaceImg(images.value[0]);
+    formData.first_frame_img = replaceImg(images.value[0])
     if (len === 2) {
-      formData.end_frame_img = replaceImg(images.value[1]);
+      formData.end_frame_img = replaceImg(images.value[1])
     }
   }
 
-  httpPost("/api/video/luma/create", formData)
+  httpPost('/api/video/luma/create', formData)
     .then(() => {
-      fetchData(1);
-      taskPulling.value = true;
-      showMessageOK("创建任务成功");
+      fetchData(1)
+      taskPulling.value = true
+      showMessageOK('创建任务成功')
     })
     .catch((e) => {
-      showMessageError("创建任务失败：" + e.message);
-    });
-};
+      showMessageError('创建任务失败：' + e.message)
+    })
+}
 
 const generatePrompt = () => {
-  if (formData.prompt === "") {
-    return showMessageError("请输入原始提示词");
+  if (formData.prompt === '') {
+    return showMessageError('请输入原始提示词')
   }
-  showLoading("正在生成视频脚本...");
-  httpPost("/api/prompt/video", { prompt: formData.prompt })
+  showLoading('正在生成视频脚本...')
+  httpPost('/api/prompt/video', { prompt: formData.prompt })
     .then((res) => {
-      formData.prompt = res.data;
-      closeLoading();
+      formData.prompt = res.data
+      closeLoading()
     })
     .catch((e) => {
-      showMessageError("生成提示词失败：" + e.message);
-      closeLoading();
-    });
-};
+      showMessageError('生成提示词失败：' + e.message)
+      closeLoading()
+    })
+}
 </script>
 
 <style lang="stylus" scoped>

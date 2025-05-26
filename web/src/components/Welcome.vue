@@ -58,63 +58,63 @@
   </div>
 </template>
 <script setup>
-import {onMounted, ref} from "vue";
-import {ElMessage} from "element-plus";
-import {getSystemInfo} from "@/store/cache";
+import { getSystemInfo } from '@/store/cache'
+import { ElMessage } from 'element-plus'
+import { onMounted, ref } from 'vue'
 
-const title = ref(process.env.VUE_APP_TITLE);
-const version = ref(process.env.VUE_APP_VERSION);
+const title = ref(import.meta.env.VITE_TITLE)
+const version = ref(import.meta.env.VITE_VERSION)
 
 const samples = ref([
-  "用小学生都能听懂的术语解释什么是量子纠缠",
-  "能给一位6岁男孩的生日会提供一些创造性的建议吗？",
-  "如何用 Go 语言实现支持代理 Http client 请求?"
-]);
+  '用小学生都能听懂的术语解释什么是量子纠缠',
+  '能给一位6岁男孩的生日会提供一些创造性的建议吗？',
+  '如何用 Go 语言实现支持代理 Http client 请求?',
+])
 
 const plugins = ref([
   {
-    value: "今日早报",
-    text: "今日早报：获取当天全球的热门新闻事件列表"
+    value: '今日早报',
+    text: '今日早报：获取当天全球的热门新闻事件列表',
   },
   {
-    value: "微博热搜",
-    text: "微博热搜：新浪微博热搜榜，微博当日热搜榜单"
+    value: '微博热搜',
+    text: '微博热搜：新浪微博热搜榜，微博当日热搜榜单',
   },
   {
-    value: "今日头条",
-    text: "今日头条：给用户推荐当天的头条新闻，周榜热文"
-  }
-]);
+    value: '今日头条',
+    text: '今日头条：给用户推荐当天的头条新闻，周榜热文',
+  },
+])
 
 const capabilities = ref([
   {
-    text: "轻松扮演翻译专家，程序员，AI 女友，文案高手...",
-    value: ""
+    text: '轻松扮演翻译专家，程序员，AI 女友，文案高手...',
+    value: '',
   },
   {
-    text: "国产大语言模型支持，百度文心，科大讯飞，ChatGLM...",
-    value: ""
+    text: '国产大语言模型支持，百度文心，科大讯飞，ChatGLM...',
+    value: '',
   },
   {
-    text: "绘画：马斯克开拖拉机，20世纪，中国农村。3:2",
-    value: "绘画：马斯克开拖拉机，20世纪，中国农村。3:2"
-  }
-]);
+    text: '绘画：马斯克开拖拉机，20世纪，中国农村。3:2',
+    value: '绘画：马斯克开拖拉机，20世纪，中国农村。3:2',
+  },
+])
 
 onMounted(() => {
   getSystemInfo()
     .then((res) => {
-      title.value = res.data.title;
+      title.value = res.data.title
     })
     .catch((e) => {
-      ElMessage.error("获取系统配置失败：" + e.message);
-    });
-});
+      ElMessage.error('获取系统配置失败：' + e.message)
+    })
+})
 
-const emits = defineEmits(["send"]);
+const emits = defineEmits(['send'])
 const send = (text) => {
-  emits("send", text);
-};
+  emits('send', text)
+}
 </script>
 <style scoped lang="stylus">
 .welcome {

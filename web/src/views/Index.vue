@@ -102,9 +102,9 @@ const slogan = ref('')
 const license = ref({ de_copy: true })
 
 const isLogin = ref(false)
-const docsURL = ref(process.env.VUE_APP_DOCS_URL)
-const githubURL = ref(process.env.VUE_APP_GITHUB_URL)
-const giteeURL = ref(process.env.VUE_APP_GITEE_URL)
+const docsURL = ref(import.meta.env.VITE_DOCS_URL)
+const githubURL = ref(import.meta.env.VITE_GITHUB_URL)
+const giteeURL = ref(import.meta.env.VITE_GITEE_URL)
 const navs = ref([])
 
 const iconMap = ref({

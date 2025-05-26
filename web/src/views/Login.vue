@@ -92,8 +92,8 @@ const enableVerify = ref(false)
 const captchaRef = ref(null)
 const ruleFormRef = ref(null)
 const ruleForm = reactive({
-  username: process.env.VUE_APP_USER,
-  password: process.env.VUE_APP_PASS,
+  username: import.meta.env.VITE_USER,
+  password: import.meta.env.VITE_PASS,
   agreement: false,
 })
 const rules = {
