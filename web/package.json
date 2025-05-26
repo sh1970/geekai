@@ -45,8 +45,8 @@
     "vue": "^3.2.13",
     "vue-router": "^4.0.15",
     "unplugin-auto-import": "^0.18.5",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "vue-waterfall-plugin-next": "^2.6.5"
-    
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",

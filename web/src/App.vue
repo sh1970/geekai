@@ -5,13 +5,12 @@
 </template>
 
 <script setup>
-import { checkSession, getClientId, getSystemInfo } from '@/store/cache'
-import { getUserToken } from '@/store/session'
+import { checkSession, getSystemInfo } from '@/store/cache'
 import { useSharedStore } from '@/store/sharedata'
 import { showMessageInfo } from '@/utils/dialog'
 import { isChrome, isMobile } from '@/utils/libs'
 import { ElConfigProvider } from 'element-plus'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted } from 'vue'
 
 const debounce = (fn, delay) => {
   let timer
@@ -56,46 +55,8 @@ onMounted(() => {
   document.documentElement.setAttribute('data-theme', store.theme)
 })
 
-watch(
-  () => store.isLogin,
-  (val) => {
-    if (val) {
-      connect()
-    }
-  }
-)
-
-const handler = ref(0)
-// 初始化 websocket 连接
-const connect = () => {
-  let host = import.meta.env.VITE_WS_HOST
-  if (host === '') {
-    if (location.protocol === 'https:') {
-      host = 'wss://' + location.host
-    } else {
-      host = 'ws://' + location.host
-    }
-  }
-  const clientId = getClientId()
-  const _socket = new WebSocket(host + `/api/ws?client_id=${clientId}`, ['token', getUserToken()])
-  _socket.addEventListener('open', () => {
-    console.log('WebSocket 已连接')
-    handler.value = setInterval(() => {
-      if (_socket.readyState === WebSocket.OPEN) {
-        _socket.send(JSON.stringify({ type: 'ping' }))
-      }
-    }, 5000)
-  })
-  _socket.addEventListener('close', () => {
-    clearInterval(handler.value)
-    connect()
-  })
-  store.setSocket(_socket)
-}
-
 // 打印 banner
 const banner = `
-
   .oooooo.                        oooo              .o.       ooooo 
  d8P'  'Y8b                        888             .888.       888
 888            .ooooo.   .ooooo.   888  oooo      .8"888.      888  
@@ -103,7 +64,6 @@ const banner = `
 888     ooooo 888ooo888 888ooo888  888888.      .88ooo8888.    888  
 '88.    .88'  888    .o 888    .o  888  88b.   .8'      888.   888  
   Y8bood8P'    Y8bod8P'  Y8bod8P' o888o o888o o88o     o8888o o888o
-
   `
 console.log('%c' + banner + '', 'color: purple;font-size: 18px;')
 

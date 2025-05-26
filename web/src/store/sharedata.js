@@ -1,11 +1,11 @@
-import {defineStore} from "pinia";
-import Storage from "good-storage";
-import errorIcon from "@/assets/img/failed.png";
-import loadingIcon from "@/assets/img/loading.gif";
+import errorIcon from '@/assets/img/failed.png'
+import loadingIcon from '@/assets/img/loading.gif'
+import Storage from 'good-storage'
+import { defineStore } from 'pinia'
 
 let waterfallOptions = {
   // 唯一key值
-  rowKey: "id",
+  rowKey: 'id',
   // 卡片之间的间隙
   gutter: 10,
   // 是否有周围的gutter
@@ -44,16 +44,16 @@ let waterfallOptions = {
     },
   },
   // 动画效果
-  animationEffect: "animate__fadeInUp",
+  animationEffect: 'animate__fadeInUp',
   // 动画时间
   animationDuration: 1000,
   // 动画延迟
   animationDelay: 300,
   animationCancel: false,
   // 背景色
-  backgroundColor: "",
+  backgroundColor: '',
   // imgSelector
-  imgSelector: "img_thumb",
+  imgSelector: 'img_thumb',
   // 是否跨域
   crossOrigin: true,
   // 加载配置
@@ -61,102 +61,62 @@ let waterfallOptions = {
     loading: loadingIcon,
     error: errorIcon,
     ratioCalculator: (width, height) => {
-      const minRatio = 3 / 4;
-      const maxRatio = 4 / 3;
-      const curRatio = height / width;
+      const minRatio = 3 / 4
+      const maxRatio = 4 / 3
+      const curRatio = height / width
       if (curRatio < minRatio) {
-        return minRatio;
+        return minRatio
       } else if (curRatio > maxRatio) {
-        return maxRatio;
+        return maxRatio
       } else {
-        return curRatio;
+        return curRatio
       }
     },
   },
   // 是否懒加载
   lazyload: true,
-  align: "center",
+  align: 'center',
 }
 
-export const useSharedStore = defineStore("shared", {
+export const useSharedStore = defineStore('shared', {
   state: () => ({
     showLoginDialog: false,
-    chatListStyle: Storage.get("chat_list_style", "chat"),
-    chatStream: Storage.get("chat_stream", true),
-    socket: { conn: null, handlers: {} },
-    theme: Storage.get("theme", "light"),
+    chatListStyle: Storage.get('chat_list_style', 'chat'),
+    chatStream: Storage.get('chat_stream', true),
+    theme: Storage.get('theme', 'light'),
     isLogin: false,
-    chatListExtend: Storage.get("chat_list_extend", true),
-    ttsModel: Storage.get("tts_model", ""),
+    chatListExtend: Storage.get('chat_list_extend', true),
+    ttsModel: Storage.get('tts_model', ''),
     waterfallOptions,
   }),
   getters: {},
   actions: {
     setShowLoginDialog(value) {
-      this.showLoginDialog = value;
+      this.showLoginDialog = value
     },
     setChatListStyle(value) {
-      this.chatListStyle = value;
-      Storage.set("chat_list_style", value);
+      this.chatListStyle = value
+      Storage.set('chat_list_style', value)
     },
     setChatStream(value) {
-      this.chatStream = value;
-      Storage.set("chat_stream", value);
-    },
-    setSocket(value) {
-      for (const key in this.socket.handlers) {
-        this.setMessageHandler(value, this.socket.handlers[key]);
-      }
-      this.socket.conn = value;
+      this.chatStream = value
+      Storage.set('chat_stream', value)
     },
     setChatListExtend(value) {
-      this.chatListExtend = value;
-      Storage.set("chat_list_extend", value);
-    },
-    addMessageHandler(key, callback) {
-      if (!this.socket.handlers[key]) {
-        this.socket.handlers[key] = callback;
-      }
-      this.setMessageHandler(this.socket.conn, callback);
-    },
-
-    setMessageHandler(conn, callback) {
-      if (!conn) {
-        return;
-      }
-      conn.addEventListener("message", (event) => {
-        try {
-          if (event.data instanceof Blob) {
-            const reader = new FileReader();
-            reader.readAsText(event.data, "UTF-8");
-            reader.onload = () => {
-              callback(JSON.parse(String(reader.result)));
-            };
-          }
-        } catch (e) {
-          console.warn(e);
-        }
-      });
-    },
-
-    removeMessageHandler(key) {
-      if (this.socket.conn && this.socket.conn.readyState === WebSocket.OPEN) {
-        this.socket.conn.removeEventListener("message", this.socket.handlers[key]);
-      }
-      delete this.socket.handlers[key];
+      this.chatListExtend = value
+      Storage.set('chat_list_extend', value)
     },
     setTheme(theme) {
-      this.theme = theme;
-      document.documentElement.setAttribute("data-theme", theme); // 设置 HTML 的 data-theme 属性
-      Storage.set("theme", theme);
+      this.theme = theme
+      document.documentElement.setAttribute('data-theme', theme) // 设置 HTML 的 data-theme 属性
+      Storage.set('theme', theme)
     },
     setIsLogin(value) {
-      this.isLogin = value;
+      this.isLogin = value
     },
-
     setTtsModel(value) {
-      this.ttsModel = value;
-      Storage.set("tts_model", value);
+      this.ttsModel = value
+      Storage.set('tts_model', value)
     },
   },
-});
+})
