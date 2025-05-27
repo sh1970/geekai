@@ -709,11 +709,6 @@ onMounted(() => {
 // 初始化数据
 const initData = async () => {
   try {
-    // 获取用户信息
-    const user = await checkSession()
-    loginUser.value = user
-    isLogin.value = true
-
     // 获取角色列表
     const roleRes = await httpGet('/api/app/list')
     roles.value = roleRes.data
@@ -728,6 +723,11 @@ const initData = async () => {
       modelID.value = models.value[0].id
     }
 
+    // 获取用户信息
+    const user = await checkSession()
+    loginUser.value = user
+    isLogin.value = true
+
     // 获取聊天列表
     const chatRes = await httpGet('/api/chat/list')
     allChats.value = chatRes.data
@@ -739,7 +739,7 @@ const initData = async () => {
     if (error.response?.status === 401) {
       isLogin.value = false
     } else {
-      showMessageError('初始化数据失败：' + error.message)
+      console.warn('初始化数据失败：' + error.message)
     }
   }
 }
@@ -762,20 +762,15 @@ const sendMessage = async function () {
     return false
   }
 
-  // 如果携带了文件，则串上文件地址
-  let content = prompt.value
-  if (files.value.length > 0) {
-    content += files.value.map((file) => file.url).join(' ')
-  }
-
   // 追加消息
   chatData.value.push({
     type: 'prompt',
     id: randString(32),
     icon: loginUser.value.avatar,
-    content: content,
+    content: prompt.value,
     model: getModelValue(modelID.value),
     created_at: new Date().getTime() / 1000,
+    files: files.value,
   })
 
   // 添加空回复消息
@@ -809,9 +804,10 @@ const sendMessage = async function () {
         role_id: roleId.value,
         model_id: modelID.value,
         chat_id: chatId.value,
-        content: content,
+        content: prompt.value,
         tools: toolSelected.value,
         stream: stream.value,
+        files: files.value,
       }),
       openWhenHidden: true,
       onopen(response) {
@@ -902,7 +898,7 @@ const sendMessage = async function () {
     ElMessage.error('发送消息失败，请重试')
   }
 
-  tmpChatTitle.value = content
+  tmpChatTitle.value = prompt.value
   prompt.value = ''
   files.value = []
   row.value = 1

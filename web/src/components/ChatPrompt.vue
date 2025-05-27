@@ -137,6 +137,7 @@ const props = defineProps({
       tokens: 0,
       model: '',
       icon: '',
+      files: [],
     },
   },
   listStyle: {
@@ -146,7 +147,7 @@ const props = defineProps({
 })
 const finalTokens = ref(props.data.tokens)
 const content = ref(processPrompt(props.data.content))
-const files = ref([])
+const files = ref(props.data.files)
 
 // 定义emit事件
 const emit = defineEmits(['edit'])
@@ -158,38 +159,6 @@ onMounted(() => {
 const processFiles = () => {
   if (!props.data.content) {
     return
-  }
-
-  // 提取图片｜文件链接
-  const linkRegex = /(https?:\/\/\S+)/g
-  const links = props.data.content.match(linkRegex)
-  const urlPrefix = `${window.location.protocol}//${window.location.host}`
-  if (links) {
-    // 把本地链接转换为相对路径
-    const _links = links.map((link) => {
-      if (link.startsWith(urlPrefix)) {
-        return link.replace(urlPrefix, '')
-      }
-      return link
-    })
-    // 合并数组并去重
-    const urls = [...new Set([...links, ..._links])]
-    httpPost('/api/upload/list', { urls: urls })
-      .then((res) => {
-        files.value = res.data.items
-
-        // for (let link of links) {
-        //   if (isExternalImg(link, files.value)) {
-        //     files.value.push({ url: link, ext: ".png" });
-        //   }
-        // }
-      })
-      .catch(() => {})
-
-    // 替换图片｜文件链接
-    for (let link of links) {
-      content.value = content.value.replace(link, '')
-    }
   }
   content.value = md.render(content.value.trim())
 }
