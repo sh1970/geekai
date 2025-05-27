@@ -16,7 +16,6 @@ import (
 	"geekai/store"
 	"geekai/store/model"
 	"geekai/utils"
-	"io"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -181,9 +180,6 @@ func (s *Service) Image(task types.DallTask, sync bool) (string, error) {
 		logger.Errorf("error with send request, status: %s, %+v", r.Status, errRes.Error)
 		return "", fmt.Errorf("error with send request, status: %s, %+v", r.Status, errRes.Error)
 	}
-
-	all, _ := io.ReadAll(r.Body)
-	logger.Debugf("response: %+v", string(all))
 
 	// update the api key last use time
 	s.db.Model(&apiKey).UpdateColumn("last_used_at", time.Now().Unix())

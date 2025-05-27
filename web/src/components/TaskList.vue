@@ -7,10 +7,10 @@
             <el-progress type="circle" :percentage="item.progress" :width="100" color="#47fff1" />
           </div>
         </div>
-        <el-image fit="cover" v-else>
+        <el-image fit="cover" class="w-full h-full" v-else>
           <template #error>
-            <div class="image-slot">
-              <i class="iconfont icon-quick-start"></i>
+            <div class="image-slot flex flex-col justify-center items-center w-full h-full">
+              <i class="iconfont icon-quick-start text-2xl mb-2"></i>
               <span>任务正在排队中</span>
             </div>
           </template>

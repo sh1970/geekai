@@ -515,7 +515,6 @@ func main() {
 			group := s.Engine.Group("/api/test")
 			group.Any("sse", h.PostTest, h.SseTest)
 		}),
-		fx.Provide(service.NewWebsocketService),
 		fx.Provide(handler.NewPromptHandler),
 		fx.Invoke(func(s *core.AppServer, h *handler.PromptHandler) {
 			group := s.Engine.Group("/api/prompt")
