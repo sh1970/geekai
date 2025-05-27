@@ -86,16 +86,15 @@ import ThemeChange from '@/components/ThemeChange.vue'
 import { checkSession, getLicenseInfo, getSystemInfo } from '@/store/cache'
 import { removeUserToken } from '@/store/session'
 import { httpGet } from '@/utils/http'
-import { isMobile } from '@/utils/libs'
 import { ElMessage } from 'element-plus'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-if (isMobile()) {
-  router.push('/mobile/index')
-}
+// if (isMobile()) {
+//   router.push('/mobile/index')
+// }
 
 const title = ref('')
 const logo = ref('')

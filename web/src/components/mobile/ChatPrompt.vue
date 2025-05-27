@@ -6,35 +6,41 @@
     </div>
 
     <div class="chat-icon">
-      <van-image :src="icon"/>
+      <van-image :src="icon" />
     </div>
   </div>
 </template>
 
 <script setup>
-import {onMounted, ref} from "vue";
-import Clipboard from "clipboard";
-import {showNotify} from "vant";
+import Clipboard from 'clipboard'
+import { showNotify } from 'vant'
+import { onMounted, ref } from 'vue'
 
 // eslint-disable-next-line no-unused-vars,no-undef
 const props = defineProps({
   content: {
-    type: String,
-    default: '',
+    type: Object,
+    default: {
+      text: '',
+      files: [],
+    },
   },
   icon: {
     type: String,
     default: '/images/user-icon.png',
-  }
-});
+  },
+})
 const contentRef = ref(null)
+const content = computed(() => {
+  return props.content.text
+})
 onMounted(() => {
-  const clipboard = new Clipboard(contentRef.value);
+  const clipboard = new Clipboard(contentRef.value)
   clipboard.on('success', () => {
-    showNotify({type: 'success', message: '复制成功', duration: 1000})
+    showNotify({ type: 'success', message: '复制成功', duration: 1000 })
   })
   clipboard.on('error', () => {
-    showNotify({type: 'danger', message: '复制失败', duration: 2000})
+    showNotify({ type: 'danger', message: '复制失败', duration: 2000 })
   })
 })
 </script>
