@@ -6,7 +6,7 @@
       </div>
 
       <div class="chat-item">
-        <div v-if="files.length > 0" class="file-list-box">
+        <div v-if="files && files.length > 0" class="file-list-box">
           <div v-for="file in files" :key="file.url">
             <div class="image" v-if="isImage(file.ext)">
               <el-image :src="file.url" fit="cover" />
@@ -49,7 +49,7 @@
       </div>
 
       <div class="chat-item">
-        <div v-if="files.length > 0" class="file-list-box">
+        <div v-if="files && files.length > 0" class="file-list-box">
           <div v-for="file in files" :key="file.url">
             <div class="image" v-if="isImage(file.ext)">
               <el-image :src="file.url" fit="cover" />
@@ -90,9 +90,8 @@
 
 <script setup>
 import { FormatFileSize, GetFileIcon, GetFileType } from '@/store/system'
-import { httpPost } from '@/utils/http'
 import { dateFormat, isImage, processPrompt } from '@/utils/libs'
-import { Clock, Edit } from '@element-plus/icons-vue'
+import { Clock } from '@element-plus/icons-vue'
 import hl from 'highlight.js'
 import MarkdownIt from 'markdown-it'
 import emoji from 'markdown-it-emoji'
@@ -115,7 +114,7 @@ const md = new MarkdownIt({
     if (lang && hl.getLanguage(lang)) {
       const langHtml = `<span class="lang-name">${lang}</span>`
       // 处理代码高亮
-      const preCode = hl.highlight(lang, str, true).value
+      const preCode = hl.highlight(str, { language: lang, ignoreIllegals: true }).value
       // 将代码包裹在 pre 中
       return `<pre class="code-container"><code class="language-${lang} hljs">${preCode}</code>${copyBtn} ${langHtml}</pre>`
     }
@@ -128,16 +127,19 @@ const md = new MarkdownIt({
 })
 md.use(mathjaxPlugin)
 md.use(emoji)
+
 const props = defineProps({
   data: {
     type: Object,
     default: {
-      content: '',
+      content: {
+        text: '',
+        files: [],
+      },
       created_at: '',
       tokens: 0,
       model: '',
       icon: '',
-      files: [],
     },
   },
   listStyle: {
@@ -146,8 +148,8 @@ const props = defineProps({
   },
 })
 const finalTokens = ref(props.data.tokens)
-const content = ref(processPrompt(props.data.content))
-const files = ref(props.data.files)
+const content = ref(processPrompt(props.data.content.text))
+const files = ref(props.data.content.files)
 
 // 定义emit事件
 const emit = defineEmits(['edit'])

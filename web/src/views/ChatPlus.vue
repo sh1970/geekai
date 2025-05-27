@@ -744,71 +744,15 @@ const initData = async () => {
   }
 }
 
-// 发送消息
-const sendMessage = async function () {
-  if (!isLogin.value) {
-    console.log('未登录')
-    store.setShowLoginDialog(true)
-    return
-  }
-
-  if (canSend.value === false) {
-    ElMessage.warning('AI 正在作答中，请稍后...')
-    return
-  }
-
-  if (prompt.value.trim().length === 0 || canSend.value === false) {
-    showMessageError('请输入要发送的消息！')
-    return false
-  }
-
-  // 追加消息
-  chatData.value.push({
-    type: 'prompt',
-    id: randString(32),
-    icon: loginUser.value.avatar,
-    content: prompt.value,
-    model: getModelValue(modelID.value),
-    created_at: new Date().getTime() / 1000,
-    files: files.value,
-  })
-
-  // 添加空回复消息
-  const _role = getRoleById(roleId.value)
-  chatData.value.push({
-    chat_id: chatId,
-    role_id: roleId.value,
-    type: 'reply',
-    id: randString(32),
-    icon: _role['icon'],
-    content: '',
-  })
-
-  nextTick(() => {
-    document
-      .getElementById('chat-box')
-      .scrollTo(0, document.getElementById('chat-box').scrollHeight)
-  })
-
-  showHello.value = false
-  disableInput(false)
-
+// 发送 SSE 请求
+const sendSSERequest = async (message) => {
   try {
     await fetchEventSource('/api/chat/message', {
       method: 'POST',
       headers: {
         Authorization: getUserToken(),
       },
-      body: JSON.stringify({
-        user_id: loginUser.value.id,
-        role_id: roleId.value,
-        model_id: modelID.value,
-        chat_id: chatId.value,
-        content: prompt.value,
-        tools: toolSelected.value,
-        stream: stream.value,
-        files: files.value,
-      }),
+      body: JSON.stringify(message),
       openWhenHidden: true,
       onopen(response) {
         if (response.ok && response.status === 200) {
@@ -849,6 +793,7 @@ const sendMessage = async function () {
               })
               .catch(() => {})
             isNewMsg.value = true
+            tmpChatTitle.value = message.prompt
             return
           }
 
@@ -858,13 +803,13 @@ const sendMessage = async function () {
               lineBuffer.value = data.body
               const reply = chatData.value[chatData.value.length - 1]
               if (reply) {
-                reply['content'] = lineBuffer.value
+                reply['content'].text = lineBuffer.value
               }
             } else {
               lineBuffer.value += data.body
               const reply = chatData.value[chatData.value.length - 1]
               if (reply) {
-                reply['content'] = lineBuffer.value
+                reply['content'].text = lineBuffer.value
               }
             }
           }
@@ -897,12 +842,77 @@ const sendMessage = async function () {
     enableInput()
     ElMessage.error('发送消息失败，请重试')
   }
+}
 
-  tmpChatTitle.value = prompt.value
+// 发送消息
+const sendMessage = () => {
+  if (!isLogin.value) {
+    console.log('未登录')
+    store.setShowLoginDialog(true)
+    return
+  }
+
+  if (canSend.value === false) {
+    ElMessage.warning('AI 正在作答中，请稍后...')
+    return
+  }
+
+  if (prompt.value.trim().length === 0 || canSend.value === false) {
+    showMessageError('请输入要发送的消息！')
+    return false
+  }
+
+  // 追加消息
+  chatData.value.push({
+    type: 'prompt',
+    id: randString(32),
+    icon: loginUser.value.avatar,
+    content: {
+      text: prompt.value,
+      files: files.value,
+    },
+    model: getModelValue(modelID.value),
+    created_at: new Date().getTime() / 1000,
+  })
+
+  // 添加空回复消息
+  const _role = getRoleById(roleId.value)
+  chatData.value.push({
+    chat_id: chatId,
+    role_id: roleId.value,
+    type: 'reply',
+    id: randString(32),
+    icon: _role['icon'],
+    content: {
+      text: '',
+      files: [],
+    },
+  })
+
+  nextTick(() => {
+    document
+      .getElementById('chat-box')
+      .scrollTo(0, document.getElementById('chat-box').scrollHeight)
+  })
+
+  showHello.value = false
+  disableInput(false)
+
+  // 异步发送 SSE 请求
+  sendSSERequest({
+    user_id: loginUser.value.id,
+    role_id: roleId.value,
+    model_id: modelID.value,
+    chat_id: chatId.value,
+    prompt: prompt.value,
+    tools: toolSelected.value,
+    stream: stream.value,
+    files: files.value,
+  })
+
   prompt.value = ''
   files.value = []
   row.value = 1
-  return true
 }
 
 const getRoleById = function (rid) {
@@ -1139,7 +1149,10 @@ const loadChatHistory = function (chatId) {
           type: 'reply',
           id: randString(32),
           icon: _role['icon'],
-          content: _role['hello_msg'],
+          content: {
+            text: _role['hello_msg'],
+            files: [],
+          },
         })
         return
       }

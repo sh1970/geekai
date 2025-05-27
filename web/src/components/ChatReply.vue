@@ -9,8 +9,8 @@
         <div class="chat-item">
           <div
             class="content-wrapper"
-            v-html="md.render(processContent(data.content))"
-            v-if="data.content"
+            v-html="md.render(processContent(data.content.text))"
+            v-if="data.content.text"
           ></div>
           <div class="content-wrapper flex justify-start items-center" v-else>
             <span class="mr-2">AI 思考中</span> <Thinking :duration="1.5" />
@@ -48,18 +48,6 @@
                 </el-tooltip>
               </span>
             </span>
-            <!--          <span class="bar-item">-->
-            <!--            <el-dropdown trigger="click">-->
-            <!--              <span class="el-dropdown-link">-->
-            <!--                <el-icon><More/></el-icon>-->
-            <!--              </span>-->
-            <!--              <template #dropdown>-->
-            <!--                <el-dropdown-menu>-->
-            <!--                  <el-dropdown-item :icon="Headset" @click="synthesis(orgContent)">生成语音</el-dropdown-item>-->
-            <!--                </el-dropdown-menu>-->
-            <!--              </template>-->
-            <!--            </el-dropdown>-->
-            <!--          </span>-->
           </div>
         </div>
       </div>
@@ -74,8 +62,8 @@
           <div class="content-wrapper">
             <div
               class="content"
-              v-html="md.render(processContent(data.content))"
-              v-if="data.content"
+              v-html="md.render(processContent(data.content.text))"
+              v-if="data.content.text"
             ></div>
             <div class="content flex justify-start items-center" v-else>
               <span class="mr-2">AI 思考中</span> <Thinking :duration="1.5" />
@@ -83,10 +71,9 @@
           </div>
           <div class="bar text-gray-500" v-if="data.created_at">
             <span class="bar-item text-sm"> {{ dateFormat(data.created_at) }}</span>
-            <!--          <span class="bar-item">tokens: {{ data.tokens }}</span>-->
             <span class="bar-item bg">
               <el-tooltip class="box-item" effect="dark" content="复制回答" placement="bottom">
-                <el-icon class="copy-reply" :data-clipboard-text="data.content">
+                <el-icon class="copy-reply" :data-clipboard-text="data.content.text">
                   <DocumentCopy />
                 </el-icon>
               </el-tooltip>
@@ -106,7 +93,7 @@
                   placement="bottom"
                   v-if="!isPlaying"
                 >
-                  <i class="iconfont icon-speaker" @click="synthesis(data.content)"></i>
+                  <i class="iconfont icon-speaker" @click="synthesis(data.content.text)"></i>
                 </el-tooltip>
                 <el-tooltip
                   class="box-item"
@@ -145,7 +132,10 @@ const props = defineProps({
     type: Object,
     default: {
       icon: '',
-      content: '',
+      content: {
+        text: '',
+        files: [],
+      },
       created_at: '',
       tokens: 0,
     },

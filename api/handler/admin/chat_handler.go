@@ -209,14 +209,14 @@ func (h *ChatHandler) Messages(c *gin.Context) {
 func (h *ChatHandler) History(c *gin.Context) {
 	chatId := c.Query("chat_id") // 会话 ID
 	var items []model.ChatMessage
-	var messages = make([]vo.HistoryMessage, 0)
+	var messages = make([]vo.ChatMessage, 0)
 	res := h.DB.Where("chat_id = ?", chatId).Find(&items)
 	if res.Error != nil {
 		resp.ERROR(c, "No history message")
 		return
 	} else {
 		for _, item := range items {
-			var v vo.HistoryMessage
+			var v vo.ChatMessage
 			err := utils.CopyObject(item, &v)
 			v.CreatedAt = item.CreatedAt.Unix()
 			v.UpdatedAt = item.UpdatedAt.Unix()
