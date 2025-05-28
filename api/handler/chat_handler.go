@@ -220,8 +220,8 @@ func (h *ChatHandler) sendMessage(ctx context.Context, input ChatInput, c *gin.C
 	}
 
 	// 加载聊天上下文
-	chatCtx := make([]interface{}, 0)
-	messages := make([]interface{}, 0)
+	chatCtx := make([]any, 0)
+	messages := make([]any, 0)
 	if h.App.SysConfig.EnableContext {
 		if h.ChatContexts.Has(input.ChatId) {
 			messages = h.ChatContexts.Get(input.ChatId)
@@ -232,6 +232,8 @@ func (h *ChatHandler) sendMessage(ctx context.Context, input ChatInput, c *gin.C
 				dbSession := h.DB.Session(&gorm.Session{}).Where("chat_id", input.ChatId)
 				if input.LastMsgId > 0 { // 重新生成逻辑
 					dbSession = dbSession.Where("id < ?", input.LastMsgId)
+					// 删除对应的聊天记录
+					h.DB.Where("chat_id", input.ChatId).Where("id >= ?", input.LastMsgId).Delete(&model.ChatMessage{})
 				}
 				err = dbSession.Limit(h.App.SysConfig.ContextDeep).Order("id DESC").Find(&historyMessages).Error
 				if err == nil {

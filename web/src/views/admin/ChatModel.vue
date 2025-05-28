@@ -265,16 +265,18 @@ const fetchData = () => {
   httpGet('/api/admin/model/list', query.value)
     .then((res) => {
       if (res.data) {
-        // 初始化数据
-        const arr = res.data
-        for (let i = 0; i < arr.length; i++) {
-          arr[i].last_used_at = dateFormat(arr[i].last_used_at)
-        }
-        items.value = arr
+        res.data.forEach((item) => {
+          if (!item.options) {
+            item.options = {}
+          }
+          item.last_used_at = dateFormat(item.last_used_at)
+        })
+        items.value = res.data
       }
       loading.value = false
     })
-    .catch(() => {
+    .catch((e) => {
+      console.error(e)
       ElMessage.error('获取数据失败')
     })
 }
