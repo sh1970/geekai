@@ -218,11 +218,19 @@ func (h *ChatHandler) History(c *gin.Context) {
 		for _, item := range items {
 			var v vo.ChatMessage
 			err := utils.CopyObject(item, &v)
+			if err != nil {
+				continue
+			}
+			// 解析内容
+			var content vo.MsgContent
+			err = utils.JsonDecode(item.Content, &content)
+			if err != nil {
+				content.Text = item.Content
+			}
+			v.Content = content
 			v.CreatedAt = item.CreatedAt.Unix()
 			v.UpdatedAt = item.UpdatedAt.Unix()
-			if err == nil {
-				messages = append(messages, v)
-			}
+			messages = append(messages, v)
 		}
 	}
 

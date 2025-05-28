@@ -873,7 +873,6 @@ const sendMessage = (messageId) => {
     },
     model: getModelValue(modelID.value),
     created_at: new Date().getTime() / 1000,
-    message_id: messageId,
   })
 
   // 添加空回复消息
@@ -909,6 +908,7 @@ const sendMessage = (messageId) => {
     tools: toolSelected.value,
     stream: stream.value,
     files: files.value,
+    last_msg_id: messageId,
   })
 
   prompt.value = ''
@@ -1196,10 +1196,10 @@ const reGenerate = function (messageId) {
   // 保存用户消息内容，填入输入框
   const userPrompt = chatData.value[chatData.value.length - 1].content.text
   // 删除用户消息
-  chatData.value.pop()
+  const lastMessage = chatData.value.pop()
   // 填入输入框
   prompt.value = userPrompt
-  sendMessage(messageId)
+  sendMessage(lastMessage.id)
   // 将光标定位到输入框并聚焦
   nextTick(() => {
     if (inputRef.value) {

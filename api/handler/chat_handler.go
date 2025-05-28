@@ -64,7 +64,6 @@ type ChatHandler struct {
 	uploadManager  *oss.UploaderManager
 	licenseService *service.LicenseService
 	ReqCancelFunc  *types.LMap[string, context.CancelFunc] // HttpClient 请求取消 handle function
-	ChatContexts   *types.LMap[string, []any]              // 聊天上下文 Map [chatId] => []Message
 	userService    *service.UserService
 }
 
@@ -75,7 +74,6 @@ func NewChatHandler(app *core.AppServer, db *gorm.DB, redis *redis.Client, manag
 		uploadManager:  manager,
 		licenseService: licenseService,
 		ReqCancelFunc:  types.NewLMap[string, context.CancelFunc](),
-		ChatContexts:   types.NewLMap[string, []any](),
 		userService:    userService,
 	}
 }
@@ -223,28 +221,24 @@ func (h *ChatHandler) sendMessage(ctx context.Context, input ChatInput, c *gin.C
 	chatCtx := make([]any, 0)
 	messages := make([]any, 0)
 	if h.App.SysConfig.EnableContext {
-		if h.ChatContexts.Has(input.ChatId) {
-			messages = h.ChatContexts.Get(input.ChatId)
-		} else {
-			_ = utils.JsonDecode(input.ChatRole.Context, &messages)
-			if h.App.SysConfig.ContextDeep > 0 {
-				var historyMessages []model.ChatMessage
-				dbSession := h.DB.Session(&gorm.Session{}).Where("chat_id", input.ChatId)
-				if input.LastMsgId > 0 { // 重新生成逻辑
-					dbSession = dbSession.Where("id < ?", input.LastMsgId)
-					// 删除对应的聊天记录
-					h.DB.Where("chat_id", input.ChatId).Where("id >= ?", input.LastMsgId).Delete(&model.ChatMessage{})
-				}
-				err = dbSession.Limit(h.App.SysConfig.ContextDeep).Order("id DESC").Find(&historyMessages).Error
-				if err == nil {
-					for i := len(historyMessages) - 1; i >= 0; i-- {
-						msg := historyMessages[i]
-						ms := types.Message{Role: "user", Content: msg.Content}
-						if msg.Type == types.ReplyMsg {
-							ms.Role = "assistant"
-						}
-						chatCtx = append(chatCtx, ms)
+		_ = utils.JsonDecode(input.ChatRole.Context, &messages)
+		if h.App.SysConfig.ContextDeep > 0 {
+			var historyMessages []model.ChatMessage
+			dbSession := h.DB.Session(&gorm.Session{}).Where("chat_id", input.ChatId)
+			if input.LastMsgId > 0 { // 重新生成逻辑
+				dbSession = dbSession.Where("id < ?", input.LastMsgId)
+				// 删除对应的聊天记录
+				h.DB.Debug().Where("chat_id", input.ChatId).Where("id >= ?", input.LastMsgId).Delete(&model.ChatMessage{})
+			}
+			err = dbSession.Limit(h.App.SysConfig.ContextDeep).Order("id DESC").Find(&historyMessages).Error
+			if err == nil {
+				for i := len(historyMessages) - 1; i >= 0; i-- {
+					msg := historyMessages[i]
+					ms := types.Message{Role: "user", Content: msg.Content}
+					if msg.Type == types.ReplyMsg {
+						ms.Role = "assistant"
 					}
+					chatCtx = append(chatCtx, ms)
 				}
 			}
 		}
@@ -520,13 +514,6 @@ func (h *ChatHandler) saveChatHistory(
 	userVo vo.User,
 	promptCreatedAt time.Time,
 	replyCreatedAt time.Time) {
-
-	// 更新上下文消息
-	if h.App.SysConfig.EnableContext {
-		chatCtx := req.Messages            // 提问消息
-		chatCtx = append(chatCtx, message) // 回复消息
-		h.ChatContexts.Put(input.ChatId, chatCtx)
-	}
 
 	// 追加聊天记录
 	// for prompt
