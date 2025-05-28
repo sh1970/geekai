@@ -60,9 +60,7 @@ const props = defineProps({
   show: Boolean,
 })
 
-const showDialog = computed(() => {
-  return props.show
-})
+const showDialog = ref(props.show)
 const emits = defineEmits(['hide'])
 const close = function () {
   emits('hide', false)

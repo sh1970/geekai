@@ -152,9 +152,9 @@ func (h *ChatHandler) History(c *gin.Context) {
 				content.Text = item.Content
 			}
 			v.Content = content
-			messages = append(messages, v)
 			v.CreatedAt = item.CreatedAt.Unix()
 			v.UpdatedAt = item.UpdatedAt.Unix()
+			messages = append(messages, v)
 		}
 	}
 

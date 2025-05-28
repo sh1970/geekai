@@ -269,8 +269,6 @@ func (h *ChatHandler) sendMessage(ctx context.Context, input ChatInput, c *gin.C
 			tokens += tks
 			chatCtx = append(chatCtx, v)
 		}
-
-		logger.Debugf("聊天上下文：%+v", chatCtx)
 	}
 	reqMgs := make([]any, 0)
 
@@ -331,8 +329,6 @@ func (h *ChatHandler) sendMessage(ctx context.Context, input ChatInput, c *gin.C
 			"content": finalPrompt,
 		})
 	}
-
-	logger.Debugf("请求消息: %+v", req.Messages)
 
 	return h.sendOpenAiMessage(req, userVo, ctx, input, c)
 }

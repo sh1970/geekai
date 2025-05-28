@@ -845,7 +845,7 @@ const sendSSERequest = async (message) => {
 }
 
 // 发送消息
-const sendMessage = () => {
+const sendMessage = (messageId) => {
   if (!isLogin.value) {
     console.log('未登录')
     store.setShowLoginDialog(true)
@@ -873,6 +873,7 @@ const sendMessage = () => {
     },
     model: getModelValue(modelID.value),
     created_at: new Date().getTime() / 1000,
+    message_id: messageId,
   })
 
   // 添加空回复消息
@@ -1185,33 +1186,20 @@ const stopGenerate = function () {
 }
 
 // 重新生成
-const reGenerate = function () {
+const reGenerate = function (messageId) {
   // 恢复发送按钮状态
   canSend.value = true
   showStopGenerate.value = false
+  console.log(messageId)
 
-  // 查找最后的用户消息和AI回复并删除
-  if (chatData.value.length >= 2) {
-    // 从后往前找，如果最后一条是AI回复，再往前一条是用户消息
-    if (chatData.value[chatData.value.length - 1].type === 'reply') {
-      // 删除AI回复
-      chatData.value.pop()
-
-      // 如果此时最后一条是用户消息，也删除它
-      if (
-        chatData.value.length > 0 &&
-        chatData.value[chatData.value.length - 1].type === 'prompt'
-      ) {
-        // 保存用户消息内容，填入输入框
-        const userPrompt = chatData.value[chatData.value.length - 1].content
-        // 删除用户消息
-        chatData.value.pop()
-        // 填入输入框
-        prompt.value = userPrompt
-      }
-    }
-  }
-
+  chatData.value = chatData.value.filter((item) => item.id < messageId)
+  // 保存用户消息内容，填入输入框
+  const userPrompt = chatData.value[chatData.value.length - 1].content.text
+  // 删除用户消息
+  chatData.value.pop()
+  // 填入输入框
+  prompt.value = userPrompt
+  sendMessage(messageId)
   // 将光标定位到输入框并聚焦
   nextTick(() => {
     if (inputRef.value) {
