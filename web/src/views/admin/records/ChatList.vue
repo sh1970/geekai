@@ -326,7 +326,7 @@ const md = MarkdownIt({
   highlight: function (str, lang) {
     if (lang && hl.getLanguage(lang)) {
       // 处理代码高亮
-      const preCode = hl.highlight(lang, str, true).value
+      const preCode = hl.highlight(str, { language: lang }).value
       // 将代码包裹在 pre 中
       return `<pre class="code-container"><code class="language-${lang} hljs">${preCode}</code></pre>`
     }
