@@ -162,10 +162,11 @@ type SystemConfig struct {
 	SdNegPrompt string `json:"sd_neg_prompt"` // SD 默认反向提示词
 	MjMode      string `json:"mj_mode"`       // midjourney 默认的API模式，relax, fast, turbo
 
-	IndexNavs   []int  `json:"index_navs"`    // 首页显示的导航菜单
-	Copyright   string `json:"copyright"`     // 版权信息
-	ICP         string `json:"icp"`           // ICP 备案号
-	MarkMapText string `json:"mark_map_text"` // 思维导入的默认文本
+	IndexNavs       []int  `json:"index_navs"`       // 首页显示的导航菜单
+	Copyright       string `json:"copyright"`        // 版权信息
+	DefaultNickname string `json:"default_nickname"` // 默认昵称
+	ICP             string `json:"icp"`              // ICP 备案号
+	MarkMapText     string `json:"mark_map_text"`    // 思维导入的默认文本
 
 	EnabledVerify    bool     `json:"enabled_verify"`     // 是否启用验证码
 	EmailWhiteList   []string `json:"email_white_list"`   // 邮箱白名单列表

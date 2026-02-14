@@ -110,7 +110,7 @@ CREATE TABLE `chatgpt_chat_history` (
   `type` varchar(10) NOT NULL COMMENT '类型：prompt|reply',
   `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色图标',
   `role_id` bigint NOT NULL COMMENT '角色 ID',
-  `model` varchar(30) DEFAULT NULL COMMENT '模型名称',
+  `model` varchar(255) DEFAULT NULL COMMENT '模型名称',
   `content` text NOT NULL COMMENT '聊天内容',
   `tokens` smallint NOT NULL COMMENT '耗费 token 数量',
   `total_tokens` bigint NOT NULL COMMENT '消耗总Token长度',
@@ -134,7 +134,7 @@ CREATE TABLE `chatgpt_chat_items` (
   `role_id` bigint NOT NULL COMMENT '角色 ID',
   `title` varchar(100) NOT NULL COMMENT '会话标题',
   `model_id` bigint NOT NULL DEFAULT '0' COMMENT '模型 ID',
-  `model` varchar(30) DEFAULT NULL COMMENT '模型名称',
+  `model` varchar(255) DEFAULT NULL COMMENT '模型名称',
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `deleted_at` datetime DEFAULT NULL
@@ -465,7 +465,7 @@ CREATE TABLE `chatgpt_power_logs` (
   `type` tinyint(1) NOT NULL COMMENT '类型（1：充值，2：消费，3：退费）',
   `amount` smallint NOT NULL COMMENT '算力数值',
   `balance` bigint NOT NULL COMMENT '余额',
-  `model` varchar(30) NOT NULL COMMENT '模型',
+  `model` varchar(255) NOT NULL COMMENT '模型',
   `remark` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
   `mark` tinyint(1) NOT NULL COMMENT '资金类型（0：支出，1：收入）',
   `created_at` datetime NOT NULL COMMENT '创建时间'

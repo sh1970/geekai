@@ -7,7 +7,8 @@
           <div class="info">
             我们非常欢迎您把此应用分享给您身边的朋友，分享成功注册后您和被邀请人都将获得
             <strong>{{ invitePower }}</strong>
-            算力额度作为奖励。 你可以保存下面的二维码或者直接复制分享您的专属推广链接发送给微信好友。
+            算力额度作为奖励。
+            你可以保存下面的二维码或者直接复制分享您的专属推广链接发送给微信好友。
           </div>
 
           <div class="invite-qrcode">
@@ -16,7 +17,9 @@
 
           <div class="invite-url">
             <span>{{ inviteURL }}</span>
-            <el-button type="primary" plain class="copy-link" :data-clipboard-text="inviteURL">复制链接</el-button>
+            <el-button type="primary" plain class="copy-link" :data-clipboard-text="inviteURL"
+              >复制链接</el-button
+            >
           </div>
         </div>
 
@@ -88,79 +91,79 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import QRCode from "qrcode";
-import { httpGet } from "@/utils/http";
-import { ElMessage } from "element-plus";
-import Clipboard from "clipboard";
-import InviteList from "@/components/InviteList.vue";
-import { checkSession, getSystemInfo } from "@/store/cache";
-import { useSharedStore } from "@/store/sharedata";
+import InviteList from '@/components/InviteList.vue'
+import { checkSession, getSystemInfo } from '@/store/cache'
+import { useSharedStore } from '@/store/sharedata'
+import { httpGet } from '@/utils/http'
+import Clipboard from 'clipboard'
+import { ElMessage } from 'element-plus'
+import QRCode from 'qrcode'
+import { onMounted, ref } from 'vue'
 
-const inviteURL = ref("");
-const qrImg = ref("/images/wx.png");
-const invitePower = ref(0);
-const hits = ref(0);
-const regNum = ref(0);
-const rate = ref(0);
-const isLogin = ref(false);
-const store = useSharedStore();
+const inviteURL = ref('')
+const qrImg = ref('/images/wx.png')
+const invitePower = ref(0)
+const hits = ref(0)
+const regNum = ref(0)
+const rate = ref(0)
+const isLogin = ref(false)
+const store = useSharedStore()
 
 onMounted(() => {
-  initData();
+  initData()
 
   // 复制链接
-  const clipboard = new Clipboard(".copy-link");
-  clipboard.on("success", () => {
-    ElMessage.success("复制成功！");
-  });
+  const clipboard = new Clipboard('.copy-link')
+  clipboard.on('success', () => {
+    ElMessage.success('复制成功！')
+  })
 
-  clipboard.on("error", () => {
-    ElMessage.error("复制失败！");
-  });
-});
+  clipboard.on('error', () => {
+    ElMessage.error('复制失败！')
+  })
+})
 
 const initData = () => {
   checkSession()
     .then(() => {
-      isLogin.value = true;
-      httpGet("/api/invite/code")
+      isLogin.value = true
+      httpGet('/api/invite/code')
         .then((res) => {
-          const text = `${location.protocol}//${location.host}/register?invite_code=${res.data.code}`;
-          hits.value = res.data["hits"];
-          regNum.value = res.data["reg_num"];
+          const text = `${location.protocol}//${location.host}/register?invite_code=${res.data.code}`
+          hits.value = res.data['hits']
+          regNum.value = res.data['reg_num']
           if (hits.value > 0) {
-            rate.value = ((regNum.value / hits.value) * 100).toFixed(2);
+            rate.value = ((regNum.value / hits.value) * 100).toFixed(2)
           }
           QRCode.toDataURL(text, { width: 400, height: 400, margin: 2 }, (error, url) => {
             if (error) {
-              console.error(error);
+              console.error(error)
             } else {
-              qrImg.value = url;
+              qrImg.value = url
             }
-          });
-          inviteURL.value = text;
+          })
+          inviteURL.value = text
         })
         .catch((e) => {
-          ElMessage.error("获取邀请码失败：" + e.message);
-        });
+          ElMessage.error('获取邀请码失败：' + e.message)
+        })
 
       getSystemInfo()
         .then((res) => {
-          invitePower.value = res.data["invite_power"];
+          invitePower.value = res.data['invite_power']
         })
         .catch((e) => {
-          ElMessage.error("获取系统配置失败：" + e.message);
-        });
+          ElMessage.error('获取系统配置失败：' + e.message)
+        })
     })
     .catch(() => {
-      store.setShowLoginDialog(true);
-    });
-};
+      store.setShowLoginDialog(true)
+    })
+}
 </script>
 
 <style lang="stylus" scoped>
-@import "@/assets/css/custom-scroll.styl"
+@import '../assets/css/custom-scroll.styl'
 .page-invitation {
   display: flex;
   justify-content: center;

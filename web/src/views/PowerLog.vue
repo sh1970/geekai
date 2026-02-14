@@ -4,7 +4,12 @@
     <div class="inner">
       <div class="list-box">
         <div class="handle-box">
-          <el-input v-model="query.model" placeholder="模型" class="handle-input mr10" clearable></el-input>
+          <el-input
+            v-model="query.model"
+            placeholder="模型"
+            class="handle-input mr10"
+            clearable
+          ></el-input>
           <el-date-picker
             v-model="query.date"
             type="daterange"
@@ -23,21 +28,27 @@
             <el-table-column prop="model" label="模型" width="130px" />
             <el-table-column prop="type" label="类型">
               <template #default="scope">
-                <el-tag size="small" :type="tagColors[scope.row.type]">{{ scope.row.type_str }}</el-tag>
+                <el-tag size="small" :type="tagColors[scope.row.type]">{{
+                  scope.row.type_str
+                }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column label="数额">
               <template #default="scope">
                 <div>
-                  <el-text type="success" v-if="scope.row.mark === 1">+{{ scope.row.amount }}</el-text>
-                  <el-text type="danger" v-if="scope.row.mark === 0">-{{ scope.row.amount }}</el-text>
+                  <el-text type="success" v-if="scope.row.mark === 1"
+                    >+{{ scope.row.amount }}</el-text
+                  >
+                  <el-text type="danger" v-if="scope.row.mark === 0"
+                    >-{{ scope.row.amount }}</el-text
+                  >
                 </div>
               </template>
             </el-table-column>
             <el-table-column prop="balance" label="余额" />
             <el-table-column label="发生时间" width="160px">
               <template #default="scope">
-                <span>{{ dateFormat(scope.row["created_at"]) }}</span>
+                <span>{{ dateFormat(scope.row['created_at']) }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="remark" label="备注" />
@@ -64,48 +75,48 @@
 </template>
 
 <script setup>
-import nodata from "@/assets/img/no-data.png";
+import nodata from '@/assets/img/no-data.png'
 
-import { onMounted, ref } from "vue";
-import { dateFormat } from "@/utils/libs";
-import { Search } from "@element-plus/icons-vue";
-import Clipboard from "clipboard";
-import { ElMessage } from "element-plus";
-import { httpPost } from "@/utils/http";
-import { checkSession } from "@/store/cache";
+import { checkSession } from '@/store/cache'
+import { httpPost } from '@/utils/http'
+import { dateFormat } from '@/utils/libs'
+import { Search } from '@element-plus/icons-vue'
+import Clipboard from 'clipboard'
+import { ElMessage } from 'element-plus'
+import { onMounted, ref } from 'vue'
 
-const items = ref([]);
-const total = ref(0);
-const page = ref(1);
-const pageSize = ref(20);
-const loading = ref(false);
-const listBoxHeight = window.innerHeight - 87;
+const items = ref([])
+const total = ref(0)
+const page = ref(1)
+const pageSize = ref(20)
+const loading = ref(false)
+const listBoxHeight = window.innerHeight - 87
 const query = ref({
-  model: "",
+  model: '',
   date: [],
-});
-const tagColors = ref(["primary", "success", "primary", "danger", "info", "warning"]);
+})
+const tagColors = ref(['primary', 'success', 'primary', 'danger', 'info', 'warning'])
 
 onMounted(() => {
   checkSession()
     .then(() => {
-      fetchData();
+      fetchData()
     })
-    .catch(() => {});
-  const clipboard = new Clipboard(".copy-order-no");
-  clipboard.on("success", () => {
-    ElMessage.success("复制成功！");
-  });
+    .catch(() => {})
+  const clipboard = new Clipboard('.copy-order-no')
+  clipboard.on('success', () => {
+    ElMessage.success('复制成功！')
+  })
 
-  clipboard.on("error", () => {
-    ElMessage.error("复制失败！");
-  });
-});
+  clipboard.on('error', () => {
+    ElMessage.error('复制失败！')
+  })
+})
 
 // 获取数据
 const fetchData = () => {
-  loading.value = true;
-  httpPost("/api/powerLog/list", {
+  loading.value = true
+  httpPost('/api/powerLog/list', {
     model: query.value.model,
     date: query.value.date,
     page: page.value,
@@ -113,22 +124,22 @@ const fetchData = () => {
   })
     .then((res) => {
       if (res.data) {
-        items.value = res.data.items;
-        total.value = res.data.total;
-        page.value = res.data.page;
-        pageSize.value = res.data.page_size;
+        items.value = res.data.items
+        total.value = res.data.total
+        page.value = res.data.page
+        pageSize.value = res.data.page_size
       }
-      loading.value = false;
+      loading.value = false
     })
     .catch((e) => {
-      loading.value = false;
-      ElMessage.error("获取数据失败：" + e.message);
-    });
-};
+      loading.value = false
+      ElMessage.error('获取数据失败：' + e.message)
+    })
+}
 </script>
 
 <style lang="stylus" scoped>
-@import "@/assets/css/custom-scroll.styl"
+@import "../assets/css/custom-scroll.styl"
 .power-log {
   color #ffffff
   .inner {

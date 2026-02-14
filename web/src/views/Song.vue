@@ -11,7 +11,9 @@
           <el-avatar :size="32" :src="song.user?.avatar" />
         </span>
         <span class="nickname">{{ song.user?.nickname }}</span>
-        <button class="btn btn-icon" @click="play"><i class="iconfont icon-play"></i> {{ song.play_times }}</button>
+        <button class="btn btn-icon" @click="play">
+          <i class="iconfont icon-play"></i> {{ song.play_times }}
+        </button>
 
         <el-tooltip content="复制歌曲链接" placement="top">
           <button class="btn btn-icon copy-link" :data-clipboard-text="getShareURL(song)">
@@ -37,58 +39,58 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import { httpGet } from "@/utils/http";
-import { showMessageError } from "@/utils/dialog";
-import { dateFormat } from "@/utils/libs";
-import Clipboard from "clipboard";
-import { ElMessage } from "element-plus";
-import MusicPlayer from "@/components/MusicPlayer.vue";
+import MusicPlayer from '@/components/MusicPlayer.vue'
+import { showMessageError } from '@/utils/dialog'
+import { httpGet } from '@/utils/http'
+import { dateFormat } from '@/utils/libs'
+import Clipboard from 'clipboard'
+import { ElMessage } from 'element-plus'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
-const id = router.currentRoute.value.params.id;
-const song = ref({ title: "" });
-const playList = ref([]);
-const playerRef = ref(null);
+const router = useRouter()
+const id = router.currentRoute.value.params.id
+const song = ref({ title: '' })
+const playList = ref([])
+const playerRef = ref(null)
 
-httpGet("/api/suno/detail", { song_id: id })
+httpGet('/api/suno/detail', { song_id: id })
   .then((res) => {
-    song.value = res.data;
-    playList.value = [song.value];
-    document.title = song.value?.title + " | By " + song.value?.user.nickname + " | Suno音乐";
+    song.value = res.data
+    playList.value = [song.value]
+    document.title = song.value?.title + ' | By ' + song.value?.user.nickname + ' | Suno音乐'
   })
   .catch((e) => {
-    showMessageError("获取歌曲详情失败：" + e.message);
-  });
+    showMessageError('获取歌曲详情失败：' + e.message)
+  })
 
-const clipboard = ref(null);
+const clipboard = ref(null)
 onMounted(() => {
-  clipboard.value = new Clipboard(".copy-link");
-  clipboard.value.on("success", () => {
-    ElMessage.success("复制歌曲链接成功！");
-  });
+  clipboard.value = new Clipboard('.copy-link')
+  clipboard.value.on('success', () => {
+    ElMessage.success('复制歌曲链接成功！')
+  })
 
-  clipboard.value.on("error", () => {
-    ElMessage.error("复制失败！");
-  });
-});
+  clipboard.value.on('error', () => {
+    ElMessage.error('复制失败！')
+  })
+})
 
 onUnmounted(() => {
-  clipboard.value.destroy();
-});
+  clipboard.value.destroy()
+})
 
 // 播放歌曲
 const play = () => {
-  playerRef.value.play();
-};
+  playerRef.value.play()
+}
 
-const winHeight = ref(window.innerHeight - 50);
+const winHeight = ref(window.innerHeight - 50)
 const getShareURL = (item) => {
-  return `${location.protocol}//${location.host}/song/${item.id}`;
-};
+  return `${location.protocol}//${location.host}/song/${item.id}`
+}
 </script>
 
 <style lang="stylus" scoped>
-@import "@/assets/css/song.styl"
+@import '../assets/css/song.styl'
 </style>

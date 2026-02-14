@@ -93,7 +93,7 @@ import { showNotify } from 'vant'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const title = ref(process.env.VUE_APP_TITLE)
+const title = ref(import.meta.env.VITE_TITLE)
 const router = useRouter()
 const isLogin = ref(false)
 const apps = ref([])

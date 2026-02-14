@@ -12,14 +12,22 @@
 
     <div class="breadcrumb">
       <el-breadcrumb :separator-icon="ArrowRight">
-        <el-breadcrumb-item v-for="item in breadcrumb" :key="item.title">{{ item.title }}</el-breadcrumb-item>
+        <el-breadcrumb-item v-for="item in breadcrumb" :key="item.title">{{
+          item.title
+        }}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="header-right">
       <div class="header-user-con">
         <!-- 切换主题 -->
-        <el-switch style="margin-right: 10px" v-model="dark" inline-prompt :active-action-icon="Moon"
-                   :inactive-action-icon="Sunny" @change="changeTheme"/>
+        <el-switch
+          style="margin-right: 10px"
+          v-model="dark"
+          inline-prompt
+          :active-action-icon="Moon"
+          :inactive-action-icon="Sunny"
+          @change="changeTheme"
+        />
         <!-- 用户名下拉菜单 -->
         <el-dropdown class="user-name" :hide-on-click="true" trigger="click">
           <span class="el-dropdown-link">
@@ -30,7 +38,9 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item><i class="iconfont icon-version"></i> 当前版本：{{ version }}</el-dropdown-item>
+              <el-dropdown-item
+                ><i class="iconfont icon-version"></i> 当前版本：{{ version }}</el-dropdown-item
+              >
               <el-dropdown-item divided @click="logout">
                 <i class="iconfont icon-logout"></i>
                 <span>退出登录</span>
@@ -43,103 +53,103 @@
   </div>
 </template>
 <script setup>
-import {onMounted, ref, watch} from "vue";
-import {getMenuItems, useSidebarStore} from "@/store/sidebar";
-import {useRouter} from "vue-router";
-import {ArrowDown, ArrowRight, Expand, Fold, Moon, Sunny} from "@element-plus/icons-vue";
-import {httpGet} from "@/utils/http";
-import {ElMessage} from "element-plus";
-import {removeAdminToken} from "@/store/session";
-import {useSharedStore} from "@/store/sharedata";
+import { removeAdminToken } from '@/store/session'
+import { useSharedStore } from '@/store/sharedata'
+import { getMenuItems, useSidebarStore } from '@/store/sidebar'
+import { httpGet } from '@/utils/http'
+import { ArrowDown, ArrowRight, Expand, Fold, Moon, Sunny } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-const version = ref(process.env.VUE_APP_VERSION);
-const avatar = ref("/images/user-info.jpg");
-const sidebar = useSidebarStore();
-const router = useRouter();
-const breadcrumb = ref([]);
+const version = ref(import.meta.env.VITE_VERSION)
+const avatar = ref('/images/user-info.jpg')
+const sidebar = useSidebarStore()
+const router = useRouter()
+const breadcrumb = ref([])
 
-const store = useSharedStore();
-const dark = ref(store.theme === "dark");
-const theme = ref(store.theme);
+const store = useSharedStore()
+const dark = ref(store.theme === 'dark')
+const theme = ref(store.theme)
 watch(
-    () => store.theme,
+  () => store.theme,
   (val) => {
-    theme.value = val;
+    theme.value = val
   }
-);
+)
 
 const changeTheme = () => {
-  store.setTheme(dark.value ? "dark" : "light");
-};
+  store.setTheme(dark.value ? 'dark' : 'light')
+}
 
 router.afterEach((to) => {
-  initBreadCrumb(to.path);
-});
+  initBreadCrumb(to.path)
+})
 
 onMounted(() => {
-  initBreadCrumb(router.currentRoute.value.path);
-});
+  initBreadCrumb(router.currentRoute.value.path)
+})
 
 // 初始化面包屑导航
 const initBreadCrumb = (path) => {
-  breadcrumb.value = [{ title: "首页" }];
-  const items = getMenuItems();
+  breadcrumb.value = [{ title: '首页' }]
+  const items = getMenuItems()
   if (items) {
-    let bk = false;
+    let bk = false
     for (let i = 0; i < items.length; i++) {
       if (items[i].index === path) {
         breadcrumb.value.push({
           title: items[i].title,
           path: items[i].index,
-        });
-        break;
+        })
+        break
       }
       if (bk) {
-        break;
+        break
       }
 
-      if (items[i]["subs"]) {
-        const subs = items[i]["subs"];
+      if (items[i]['subs']) {
+        const subs = items[i]['subs']
         for (let j = 0; j < subs.length; j++) {
           if (subs[j].index === path) {
             breadcrumb.value.push({
               title: items[i].title,
               path: items[i].index,
-            });
+            })
             breadcrumb.value.push({
               title: subs[j].title,
               path: subs[j].index,
-            });
-            bk = true;
-            break;
+            })
+            bk = true
+            break
           }
         }
       }
     }
   }
-};
+}
 
 // 侧边栏折叠
 const collapseChange = () => {
-  sidebar.handleCollapse();
-};
+  sidebar.handleCollapse()
+}
 
 onMounted(() => {
   if (document.body.clientWidth < 1024) {
-    collapseChange();
+    collapseChange()
   }
-});
+})
 
 const logout = function () {
-  httpGet("/api/admin/logout")
+  httpGet('/api/admin/logout')
     .then(() => {
-      removeAdminToken();
-      router.replace("/admin/login");
+      removeAdminToken()
+      router.replace('/admin/login')
     })
     .catch((e) => {
-      ElMessage.error("注销失败: " + e.message);
-    });
-};
+      ElMessage.error('注销失败: ' + e.message)
+    })
+}
 </script>
 <style scoped lang="stylus">
 .admin-header {

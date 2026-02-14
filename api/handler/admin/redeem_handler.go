@@ -106,8 +106,8 @@ func (h *RedeemHandler) Export(c *gin.Context) {
 	}
 
 	// 设置响应头，告诉浏览器这是一个附件，需要下载
-	c.Header("Content-Disposition", "attachment; filename=output.csv")
-	c.Header("Content-Type", "text/csv")
+	c.Header("Prompt-Disposition", "attachment; filename=output.csv")
+	c.Header("Prompt-Type", "text/csv")
 
 	// 创建一个 CSV writer
 	writer := csv.NewWriter(c.Writer)

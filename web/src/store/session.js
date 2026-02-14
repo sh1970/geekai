@@ -1,39 +1,39 @@
-import {randString} from "@/utils/libs";
-import Storage from "good-storage";
-import {removeAdminInfo} from "@/store/cache";
+import { removeAdminInfo } from '@/store/cache'
+import { randString } from '@/utils/libs'
+import Storage from 'good-storage'
 
 /**
  * storage handler
  */
 
-const UserTokenKey = process.env.VUE_APP_KEY_PREFIX + "Authorization";
-const AdminTokenKey = process.env.VUE_APP_KEY_PREFIX + "Admin-Authorization"
+const UserTokenKey = import.meta.env.VITE_KEY_PREFIX + 'Authorization'
+const AdminTokenKey = import.meta.env.VITE_KEY_PREFIX + 'Admin-Authorization'
 
 export function getSessionId() {
-    return randString(42)
+  return randString(42)
 }
 
 export function getUserToken() {
-    return Storage.get(UserTokenKey) ?? ""
+  return Storage.get(UserTokenKey) ?? ''
 }
 export function setUserToken(token) {
-    // 刷新 session 缓存
-    Storage.set(UserTokenKey, token)
+  // 刷新 session 缓存
+  Storage.set(UserTokenKey, token)
 }
 
 export function removeUserToken() {
-    Storage.remove(UserTokenKey)
+  Storage.remove(UserTokenKey)
 }
 
 export function getAdminToken() {
-    return Storage.get(AdminTokenKey) ?? ""
+  return Storage.get(AdminTokenKey) ?? ''
 }
 
 export function setAdminToken(token) {
-    Storage.set(AdminTokenKey, token)
+  Storage.set(AdminTokenKey, token)
 }
 
 export function removeAdminToken() {
-    Storage.remove(AdminTokenKey)
-    removeAdminInfo()
+  Storage.remove(AdminTokenKey)
+  removeAdminInfo()
 }

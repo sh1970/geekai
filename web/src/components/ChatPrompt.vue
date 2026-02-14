@@ -6,7 +6,7 @@
       </div>
 
       <div class="chat-item">
-        <div v-if="files.length > 0" class="file-list-box">
+        <div v-if="files && files.length > 0" class="file-list-box">
           <div v-for="file in files" :key="file.url">
             <div class="image" v-if="isImage(file.ext)">
               <el-image :src="file.url" fit="cover" />
@@ -29,7 +29,9 @@
             </div>
           </div>
         </div>
-        <div class="content" v-html="content"></div>
+        <div class="content position-relative">
+          <div v-html="content"></div>
+        </div>
         <div class="bar" v-if="data.created_at > 0">
           <span class="bar-item"
             ><el-icon><Clock /></el-icon> {{ dateFormat(data.created_at) }}</span
@@ -47,7 +49,7 @@
       </div>
 
       <div class="chat-item">
-        <div v-if="files.length > 0" class="file-list-box">
+        <div v-if="files && files.length > 0" class="file-list-box">
           <div v-for="file in files" :key="file.url">
             <div class="image" v-if="isImage(file.ext)">
               <el-image :src="file.url" fit="cover" />
@@ -71,7 +73,9 @@
           </div>
         </div>
         <div class="content-wrapper">
-          <div class="content" v-html="content"></div>
+          <div class="content position-relative">
+            <div v-html="content"></div>
+          </div>
         </div>
         <div class="bar" v-if="data.created_at > 0">
           <span class="bar-item"
@@ -86,7 +90,6 @@
 
 <script setup>
 import { FormatFileSize, GetFileIcon, GetFileType } from '@/store/system'
-import { httpPost } from '@/utils/http'
 import { dateFormat, isImage, processPrompt } from '@/utils/libs'
 import { Clock } from '@element-plus/icons-vue'
 import hl from 'highlight.js'
@@ -111,7 +114,7 @@ const md = new MarkdownIt({
     if (lang && hl.getLanguage(lang)) {
       const langHtml = `<span class="lang-name">${lang}</span>`
       // 处理代码高亮
-      const preCode = hl.highlight(lang, str, true).value
+      const preCode = hl.highlight(str, { language: lang, ignoreIllegals: true }).value
       // 将代码包裹在 pre 中
       return `<pre class="code-container"><code class="language-${lang} hljs">${preCode}</code>${copyBtn} ${langHtml}</pre>`
     }
@@ -124,11 +127,15 @@ const md = new MarkdownIt({
 })
 md.use(mathjaxPlugin)
 md.use(emoji)
+
 const props = defineProps({
   data: {
     type: Object,
     default: {
-      content: '',
+      content: {
+        text: '',
+        files: [],
+      },
       created_at: '',
       tokens: 0,
       model: '',
@@ -141,8 +148,11 @@ const props = defineProps({
   },
 })
 const finalTokens = ref(props.data.tokens)
-const content = ref(processPrompt(props.data.content))
-const files = ref([])
+const content = ref(processPrompt(props.data.content.text))
+const files = ref(props.data.content.files)
+
+// 定义emit事件
+const emit = defineEmits(['edit'])
 
 onMounted(() => {
   processFiles()
@@ -151,38 +161,6 @@ onMounted(() => {
 const processFiles = () => {
   if (!props.data.content) {
     return
-  }
-
-  // 提取图片｜文件链接
-  const linkRegex = /(https?:\/\/\S+)/g
-  const links = props.data.content.match(linkRegex)
-  const urlPrefix = `${window.location.protocol}//${window.location.host}`
-  if (links) {
-    // 把本地链接转换为相对路径
-    const _links = links.map((link) => {
-      if (link.startsWith(urlPrefix)) {
-        return link.replace(urlPrefix, '')
-      }
-      return link
-    })
-    // 合并数组并去重
-    const urls = [...new Set([...links, ..._links])]
-    httpPost('/api/upload/list', { urls: urls })
-      .then((res) => {
-        files.value = res.data.items
-
-        // for (let link of links) {
-        //   if (isExternalImg(link, files.value)) {
-        //     files.value.push({ url: link, ext: ".png" });
-        //   }
-        // }
-      })
-      .catch(() => {})
-
-    // 替换图片｜文件链接
-    for (let link of links) {
-      content.value = content.value.replace(link, '')
-    }
   }
   content.value = md.render(content.value.trim())
 }
@@ -474,5 +452,40 @@ const isExternalImg = (link, files) => {
 
   }
 
+}
+
+.operations
+  display none
+  position absolute
+  right 5px
+  top 5px
+
+.text-box
+  &:hover
+    .operations
+      display flex
+      gap 5px
+
+.op-edit
+  cursor pointer
+  color #409eff
+  font-size 16px
+
+  &:hover
+    color darken(#409eff, 10%)
+
+.position-relative {
+  position: relative;
+}
+
+.action-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+}
+
+.content:hover .action-buttons {
+  display: block;
 }
 </style>

@@ -1,6 +1,11 @@
 <template>
   <div>
-    <div class="member custom-scroll" v-loading="loading" element-loading-background="rgba(255,255,255,.3)" :element-loading-text="loadingText">
+    <div
+      class="member custom-scroll"
+      v-loading="loading"
+      element-loading-background="rgba(255,255,255,.3)"
+      :element-loading-text="loadingText"
+    >
       <div class="inner">
         <div class="user-profile">
           <user-profile :key="profileKey" />
@@ -26,7 +31,9 @@
 
         <div class="product-box">
           <div class="info" v-if="orderPayInfoText !== ''">
-            <el-alert type="success" show-icon :closable="false" effect="dark"> <strong>说明:</strong> {{ vipInfoText }} </el-alert>
+            <el-alert type="success" show-icon :closable="false" effect="dark">
+              <strong>说明:</strong> {{ vipInfoText }}
+            </el-alert>
           </div>
 
           <el-row v-if="list.length > 0" :gutter="20" class="list-box">
@@ -61,7 +68,12 @@
                   </div>
 
                   <div class="pay-way">
-                    <span type="primary" v-for="payWay in payWays" @click="pay(item, payWay)" :key="payWay">
+                    <span
+                      type="primary"
+                      v-for="payWay in payWays"
+                      @click="pay(item, payWay)"
+                      :key="payWay"
+                    >
                       <el-button v-if="payWay.pay_type === 'alipay'" color="#15A6E8" circle>
                         <i class="iconfont icon-alipay"></i>
                       </el-button>
@@ -97,14 +109,33 @@
         </div>
       </div>
 
-      <password-dialog v-if="isLogin" :show="showPasswordDialog" @hide="showPasswordDialog = false" />
-      <bind-mobile v-if="isLogin" :show="showBindMobileDialog" @hide="showBindMobileDialog = false" />
+      <password-dialog
+        v-if="isLogin"
+        :show="showPasswordDialog"
+        @hide="showPasswordDialog = false"
+      />
+      <bind-mobile
+        v-if="isLogin"
+        :show="showBindMobileDialog"
+        @hide="showBindMobileDialog = false"
+      />
       <bind-email v-if="isLogin" :show="showBindEmailDialog" @hide="showBindEmailDialog = false" />
-      <third-login v-if="isLogin" :show="showThirdLoginDialog" @hide="showThirdLoginDialog = false" />
+      <third-login
+        v-if="isLogin"
+        :show="showThirdLoginDialog"
+        @hide="showThirdLoginDialog = false"
+      />
       <redeem-verify v-if="isLogin" :show="showRedeemVerifyDialog" @hide="redeemCallback" />
     </div>
 
-    <el-dialog v-model="showDialog" :show-close="false" :close-on-click-modal="false" hide-footer width="auto" class="pay-dialog">
+    <el-dialog
+      v-model="showDialog"
+      :show-close="false"
+      :close-on-click-modal="false"
+      hide-footer
+      width="auto"
+      class="pay-dialog"
+    >
       <div v-if="qrImg !== ''">
         <div class="product-info">
           请使用微信扫码支付：<span class="price">￥{{ price }}</span>
@@ -120,148 +151,148 @@
 </template>
 
 <script setup>
-import nodata from "@/assets/img/no-data.png";
-import { onMounted, ref } from "vue";
-import { ElMessage } from "element-plus";
-import { httpGet, httpPost } from "@/utils/http";
-import { checkSession, getSystemInfo } from "@/store/cache";
-import UserProfile from "@/components/UserProfile.vue";
-import PasswordDialog from "@/components/PasswordDialog.vue";
-import BindMobile from "@/components/BindMobile.vue";
-import RedeemVerify from "@/components/RedeemVerify.vue";
-import UserOrder from "@/components/UserOrder.vue";
-import { useSharedStore } from "@/store/sharedata";
-import BindEmail from "@/components/BindEmail.vue";
-import ThirdLogin from "@/components/ThirdLogin.vue";
-import QRCode from "qrcode";
+import nodata from '@/assets/img/no-data.png'
+import BindEmail from '@/components/BindEmail.vue'
+import BindMobile from '@/components/BindMobile.vue'
+import PasswordDialog from '@/components/PasswordDialog.vue'
+import RedeemVerify from '@/components/RedeemVerify.vue'
+import ThirdLogin from '@/components/ThirdLogin.vue'
+import UserOrder from '@/components/UserOrder.vue'
+import UserProfile from '@/components/UserProfile.vue'
+import { checkSession, getSystemInfo } from '@/store/cache'
+import { useSharedStore } from '@/store/sharedata'
+import { httpGet, httpPost } from '@/utils/http'
+import { ElMessage } from 'element-plus'
+import QRCode from 'qrcode'
+import { onMounted, ref } from 'vue'
 
-const list = ref([]);
-const vipImg = ref("/images/menu/member.png");
-const enableReward = ref(false); // 是否启用众筹功能
-const rewardImg = ref("/images/reward.png");
-const showPasswordDialog = ref(false);
-const showBindMobileDialog = ref(false);
-const showBindEmailDialog = ref(false);
-const showRedeemVerifyDialog = ref(false);
-const showThirdLoginDialog = ref(false);
-const user = ref(null);
-const isLogin = ref(false);
-const orderTimeout = ref(1800);
-const loading = ref(true);
-const loadingText = ref("加载中...");
-const orderPayInfoText = ref("");
+const list = ref([])
+const vipImg = ref('/images/menu/member.png')
+const enableReward = ref(false) // 是否启用众筹功能
+const rewardImg = ref('/images/reward.png')
+const showPasswordDialog = ref(false)
+const showBindMobileDialog = ref(false)
+const showBindEmailDialog = ref(false)
+const showRedeemVerifyDialog = ref(false)
+const showThirdLoginDialog = ref(false)
+const user = ref(null)
+const isLogin = ref(false)
+const orderTimeout = ref(1800)
+const loading = ref(true)
+const loadingText = ref('加载中...')
+const orderPayInfoText = ref('')
 
-const payWays = ref([]);
-const vipInfoText = ref("");
-const store = useSharedStore();
-const profileKey = ref(0);
-const userOrderKey = ref(0);
-const showDialog = ref(false);
-const qrImg = ref("");
-const price = ref(0);
+const payWays = ref([])
+const vipInfoText = ref('')
+const store = useSharedStore()
+const profileKey = ref(0)
+const userOrderKey = ref(0)
+const showDialog = ref(false)
+const qrImg = ref('')
+const price = ref(0)
 
 onMounted(() => {
   checkSession()
     .then((_user) => {
-      user.value = _user;
-      isLogin.value = true;
+      user.value = _user
+      isLogin.value = true
     })
     .catch(() => {
-      store.setShowLoginDialog(true);
-    });
+      store.setShowLoginDialog(true)
+    })
 
-  httpGet("/api/product/list")
+  httpGet('/api/product/list')
     .then((res) => {
-      list.value = res.data;
-      loading.value = false;
+      list.value = res.data
+      loading.value = false
     })
     .catch((e) => {
-      ElMessage.error("获取产品套餐失败：" + e.message);
-    });
+      ElMessage.error('获取产品套餐失败：' + e.message)
+    })
 
   getSystemInfo()
     .then((res) => {
-      rewardImg.value = res.data["reward_img"];
-      enableReward.value = res.data["enabled_reward"];
-      orderPayInfoText.value = res.data["order_pay_info_text"];
-      if (res.data["order_pay_timeout"] > 0) {
-        orderTimeout.value = res.data["order_pay_timeout"];
+      rewardImg.value = res.data['reward_img']
+      enableReward.value = res.data['enabled_reward']
+      orderPayInfoText.value = res.data['order_pay_info_text']
+      if (res.data['order_pay_timeout'] > 0) {
+        orderTimeout.value = res.data['order_pay_timeout']
       }
-      vipInfoText.value = res.data["vip_info_text"];
+      vipInfoText.value = res.data['vip_info_text']
     })
     .catch((e) => {
-      ElMessage.error("获取系统配置失败：" + e.message);
-    });
+      ElMessage.error('获取系统配置失败：' + e.message)
+    })
 
-  httpGet("/api/payment/payWays")
+  httpGet('/api/payment/payWays')
     .then((res) => {
-      payWays.value = res.data;
+      payWays.value = res.data
     })
     .catch((e) => {
-      ElMessage.error("获取支付方式失败：" + e.message);
-    });
-});
+      ElMessage.error('获取支付方式失败：' + e.message)
+    })
+})
 
 const pay = (product, payWay) => {
   if (!isLogin.value) {
-    store.setShowLoginDialog(true);
-    return;
+    store.setShowLoginDialog(true)
+    return
   }
-  loading.value = true;
-  loadingText.value = "正在生成支付订单...";
-  let host = process.env.VUE_APP_API_HOST;
-  if (host === "") {
-    host = `${location.protocol}//${location.host}`;
+  loading.value = true
+  loadingText.value = '正在生成支付订单...'
+  let host = import.meta.env.VITE_API_HOST
+  if (host === '') {
+    host = `${location.protocol}//${location.host}`
   }
-  httpPost(`${process.env.VUE_APP_API_HOST}/api/payment/doPay`, {
+  httpPost(`${import.meta.env.VITE_API_HOST}/api/payment/doPay`, {
     product_id: product.id,
     pay_way: payWay.pay_way,
     pay_type: payWay.pay_type,
     user_id: user.value.id,
     host: host,
-    device: "jump",
+    device: 'jump',
   })
     .then((res) => {
-      showDialog.value = true;
-      loading.value = false;
-      if (payWay.pay_way === "wechat") {
-        price.value = Number(product.discount);
+      showDialog.value = true
+      loading.value = false
+      if (payWay.pay_way === 'wechat') {
+        price.value = Number(product.discount)
         QRCode.toDataURL(res.data, { width: 300, height: 300, margin: 2 }, (error, url) => {
           if (error) {
-            console.error(error);
+            console.error(error)
           } else {
-            qrImg.value = url;
+            qrImg.value = url
           }
-        });
+        })
       } else {
-        window.open(res.data, "_blank");
+        window.open(res.data, '_blank')
       }
     })
     .catch((e) => {
       setTimeout(() => {
-        ElMessage.error("生成支付订单失败：" + e.message);
-        loading.value = false;
-      }, 500);
-    });
-};
+        ElMessage.error('生成支付订单失败：' + e.message)
+        loading.value = false
+      }, 500)
+    })
+}
 
 const redeemCallback = (success) => {
-  showRedeemVerifyDialog.value = false;
+  showRedeemVerifyDialog.value = false
   if (success) {
-    profileKey.value += 1;
+    profileKey.value += 1
   }
-};
+}
 
 const payCallback = (success) => {
-  showDialog.value = false;
+  showDialog.value = false
   if (success) {
-    profileKey.value += 1;
-    userOrderKey.value += 1;
+    profileKey.value += 1
+    userOrderKey.value += 1
   }
-};
+}
 </script>
 
-<style lang="stylus">
-@import "@/assets/css/custom-scroll.styl"
-@import "@/assets/css/member.styl"
+<style lang="stylus" scoped>
+@import "../assets/css/custom-scroll.styl"
+@import "../assets/css/member.styl"
 </style>

@@ -137,13 +137,15 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 	salt := utils.RandString(8)
 	user := model.User{
-		Username:  data.Username,
-		Password:  utils.GenPassword(data.Password, salt),
-		Avatar:    "/images/avatar/user.png",
-		Salt:      salt,
-		Status:    true,
-		ChatRoles: utils.JsonEncode([]string{"gpt"}), // 默认只订阅通用助手角色
-		Power:     h.App.SysConfig.InitPower,
+		Username:   data.Username,
+		Password:   utils.GenPassword(data.Password, salt),
+		Avatar:     "/images/avatar/user.png",
+		Salt:       salt,
+		Status:     true,
+		ChatRoles:  utils.JsonEncode([]string{"gpt"}), // 默认只订阅通用助手角色
+		ChatConfig: "{}",
+		ChatModels: "{}",
+		Power:      h.App.SysConfig.InitPower,
 	}
 
 	// check if the username is existing
@@ -170,10 +172,15 @@ func (h *UserHandler) Register(c *gin.Context) {
 	if data.InviteCode != "" {
 		user.Power += h.App.SysConfig.InvitePower
 	}
+
 	if h.licenseService.GetLicense().Configs.DeCopy {
 		user.Nickname = fmt.Sprintf("用户@%d", utils.RandomNumber(6))
 	} else {
-		user.Nickname = fmt.Sprintf("极客学长@%d", utils.RandomNumber(6))
+		defaultNickname := h.App.SysConfig.DefaultNickname
+		if defaultNickname == "" {
+			defaultNickname = "极客学长"
+		}
+		user.Nickname = fmt.Sprintf("%s@%d", defaultNickname, utils.RandomNumber(6))
 	}
 
 	tx := h.DB.Begin()

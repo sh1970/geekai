@@ -178,6 +178,7 @@ func (h *UserHandler) Save(c *gin.Context) {
 			Power:       data.Power,
 			Status:      true,
 			ChatRoles:   utils.JsonEncode(data.ChatRoles),
+			ChatConfig:  "{}",
 			ChatModels:  utils.JsonEncode(data.ChatModels),
 			ExpiredTime: utils.Str2stamp(data.ExpiredTime),
 		}

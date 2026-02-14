@@ -120,11 +120,13 @@
 <script setup>
 import ChatPrompt from '@/components/mobile/ChatPrompt.vue'
 import ChatReply from '@/components/mobile/ChatReply.vue'
-import { checkSession, getClientId } from '@/store/cache'
+import { checkSession } from '@/store/cache'
+import { getUserToken } from '@/store/session'
 import { useSharedStore } from '@/store/sharedata'
 import { showMessageError } from '@/utils/dialog'
 import { httpGet } from '@/utils/http'
 import { processContent, randString, renderInputText, UUID } from '@/utils/libs'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
 import Clipboard from 'clipboard'
 import hl from 'highlight.js'
 import 'highlight.js/styles/a11y-dark.css'
@@ -134,6 +136,7 @@ import mathjaxPlugin from 'markdown-it-mathjax3'
 import { showImagePreview, showNotify, showToast } from 'vant'
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
 const winHeight = ref(0)
 const navBarRef = ref(null)
 const bottomBarRef = ref(null)
@@ -267,65 +270,10 @@ onMounted(() => {
   clipboard.on('error', () => {
     showNotify({ type: 'danger', message: '复制失败', duration: 2000 })
   })
-
-  store.addMessageHandler('chat', (data) => {
-    if (data.channel !== 'chat' || data.clientId !== getClientId()) {
-      return
-    }
-
-    if (data.type === 'error') {
-      showMessageError(data.body)
-      return
-    }
-
-    if (isNewMsg.value) {
-      if (!title.value) {
-        title.value = previousText.value
-      }
-      lineBuffer.value = data.body
-      isNewMsg.value = false
-      const reply = chatData.value[chatData.value.length - 1]
-      if (reply) {
-        reply['content'] = lineBuffer.value
-      }
-    } else if (data.type === 'end') {
-      // 消息接收完毕
-      enableInput()
-      lineBuffer.value = '' // 清空缓冲
-      isNewMsg.value = true
-    } else {
-      lineBuffer.value += data.body
-      const reply = chatData.value[chatData.value.length - 1]
-      reply['orgContent'] = lineBuffer.value
-      reply['content'] = md.render(processContent(lineBuffer.value))
-
-      nextTick(() => {
-        hl.configure({ ignoreUnescapedHTML: true })
-        const lines = document.querySelectorAll('.message-line')
-        const blocks = lines[lines.length - 1].querySelectorAll('pre code')
-        blocks.forEach((block) => {
-          hl.highlightElement(block)
-        })
-        scrollListBox()
-
-        const items = document.querySelectorAll('.message-line')
-        const imgs = items[items.length - 1].querySelectorAll('img')
-        for (let i = 0; i < imgs.length; i++) {
-          if (!imgs[i].src) {
-            continue
-          }
-          imgs[i].addEventListener('click', (e) => {
-            e.stopPropagation()
-            showImagePreview([imgs[i].src])
-          })
-        }
-      })
-    }
-  })
 })
 
 onUnmounted(() => {
-  store.removeMessageHandler('chat')
+  // Remove WebSocket handler cleanup
 })
 
 const newChat = (item) => {
@@ -360,7 +308,9 @@ const loadChatHistory = () => {
           type: 'reply',
           id: randString(32),
           icon: role.icon,
-          content: role.hello_msg,
+          content: {
+            text: role.hello_msg,
+          },
           orgContent: role.hello_msg,
         })
         return
@@ -373,7 +323,7 @@ const loadChatHistory = () => {
         }
 
         data[i].orgContent = data[i].content
-        data[i].content = md.render(processContent(data[i].content))
+        data[i].content.text = md.render(processContent(data[i].content.text))
         chatData.value.push(data[i])
       }
 
@@ -427,14 +377,103 @@ const scrollListBox = () => {
     .scrollTo(0, document.getElementById('message-list-box').scrollHeight + 46)
 }
 
+// 发送 SSE 请求
+const sendSSERequest = async (message) => {
+  try {
+    await fetchEventSource('/api/chat/message', {
+      method: 'POST',
+      headers: {
+        Authorization: getUserToken(),
+      },
+      body: JSON.stringify(message),
+      openWhenHidden: true,
+      onopen(response) {
+        if (response.ok && response.status === 200) {
+          console.log('SSE connection opened')
+        } else {
+          throw new Error(`Failed to open SSE connection: ${response.status}`)
+        }
+      },
+      onmessage(msg) {
+        try {
+          const data = JSON.parse(msg.data)
+          if (data.type === 'error') {
+            showMessageError(data.body)
+            enableInput()
+            return
+          }
+
+          if (data.type === 'end') {
+            enableInput()
+            lineBuffer.value = '' // 清空缓冲
+            isNewMsg.value = true
+            return
+          }
+
+          if (data.type === 'text') {
+            if (isNewMsg.value) {
+              isNewMsg.value = false
+              lineBuffer.value = data.body
+              const reply = chatData.value[chatData.value.length - 1]
+              if (reply) {
+                reply['content']['text'] = lineBuffer.value
+              }
+            } else {
+              lineBuffer.value += data.body
+              const reply = chatData.value[chatData.value.length - 1]
+              reply['orgContent'] = lineBuffer.value
+              reply['content']['text'] = md.render(processContent(lineBuffer.value))
+
+              nextTick(() => {
+                hl.configure({ ignoreUnescapedHTML: true })
+                const lines = document.querySelectorAll('.message-line')
+                const blocks = lines[lines.length - 1].querySelectorAll('pre code')
+                blocks.forEach((block) => {
+                  hl.highlightElement(block)
+                })
+                scrollListBox()
+
+                const items = document.querySelectorAll('.message-line')
+                const imgs = items[items.length - 1].querySelectorAll('img')
+                for (let i = 0; i < imgs.length; i++) {
+                  if (!imgs[i].src) {
+                    continue
+                  }
+                  imgs[i].addEventListener('click', (e) => {
+                    e.stopPropagation()
+                    showImagePreview([imgs[i].src])
+                  })
+                }
+              })
+            }
+          }
+        } catch (error) {
+          console.error('Error processing message:', error)
+          enableInput()
+          showMessageError('消息处理出错，请重试')
+        }
+      },
+      onerror(err) {
+        console.error('SSE Error:', err)
+        enableInput()
+        showMessageError('连接已断开，请重试')
+      },
+      onclose() {
+        console.log('SSE connection closed')
+        enableInput()
+      },
+    })
+  } catch (error) {
+    console.error('Failed to send message:', error)
+    enableInput()
+    showMessageError('发送消息失败，请重试')
+  }
+}
+
+// 发送消息
 const sendMessage = () => {
   if (canSend.value === false) {
     showToast('AI 正在作答中，请稍后...')
-    return
-  }
-
-  if (store.socket.conn.readyState !== WebSocket.OPEN) {
-    showToast('连接断开，正在重连...')
     return
   }
 
@@ -448,7 +487,7 @@ const sendMessage = () => {
     type: 'prompt',
     id: randString(32),
     icon: loginUser.value.avatar,
-    content: renderInputText(prompt.value),
+    content: { text: renderInputText(prompt.value) },
     created_at: new Date().getTime(),
   })
   // 添加空回复消息
@@ -459,7 +498,9 @@ const sendMessage = () => {
     type: 'reply',
     id: randString(32),
     icon: _role['icon'],
-    content: '',
+    content: {
+      text: '',
+    },
   })
 
   nextTick(() => {
@@ -467,31 +508,23 @@ const sendMessage = () => {
   })
 
   disableInput(false)
-  store.socket.conn.send(
-    JSON.stringify({
-      channel: 'chat',
-      type: 'text',
-      body: {
-        role_id: roleId.value,
-        model_id: modelId.value,
-        chat_id: chatId.value,
-        content: prompt.value,
-        stream: stream.value,
-      },
-    })
-  )
+
+  // 发送 SSE 请求
+  sendSSERequest({
+    user_id: loginUser.value.id,
+    role_id: roleId.value,
+    model_id: modelId.value,
+    chat_id: chatId.value,
+    prompt: prompt.value,
+    stream: stream.value,
+  })
+
   previousText.value = prompt.value
   prompt.value = ''
   return true
 }
 
-const stopGenerate = () => {
-  showStopGenerate.value = false
-  httpGet('/api/chat/stop?session_id=' + getClientId()).then(() => {
-    enableInput()
-  })
-}
-
+// 重新生成
 const reGenerate = () => {
   disableInput(false)
   const text = '重新生成上述问题的答案：' + previousText.value
@@ -502,19 +535,16 @@ const reGenerate = () => {
     icon: loginUser.value.avatar,
     content: renderInputText(text),
   })
-  store.socket.conn.send(
-    JSON.stringify({
-      channel: 'chat',
-      type: 'text',
-      body: {
-        role_id: roleId.value,
-        model_id: modelId.value,
-        chat_id: chatId.value,
-        content: previousText.value,
-        stream: stream.value,
-      },
-    })
-  )
+
+  // 发送 SSE 请求
+  sendSSERequest({
+    user_id: loginUser.value.id,
+    role_id: roleId.value,
+    model_id: modelId.value,
+    chat_id: chatId.value,
+    prompt: previousText.value,
+    stream: stream.value,
+  })
 }
 
 const showShare = ref(false)
@@ -601,6 +631,6 @@ const onChange = (item) => {
 }
 </script>
 
-<style lang="stylus">
-@import "@/assets/css/mobile/chat-session.styl"
+<style lang="stylus" scoped>
+@import "../../assets/css/mobile/chat-session.styl"
 </style>

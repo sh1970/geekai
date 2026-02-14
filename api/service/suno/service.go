@@ -94,6 +94,8 @@ func (s *Service) Run() {
 				continue
 			}
 
+			logger.Infof("任务提交成功: %+v", r)
+
 			// 更新任务信息
 			s.db.Model(&model.SunoJob{Id: task.Id}).UpdateColumns(map[string]interface{}{
 				"task_id": r.Data,
@@ -127,6 +129,7 @@ func (s *Service) Create(task types.SunoTask) (RespVo, error) {
 		"continue_clip_id":  task.RefSongId,
 		"continue_at":       task.ExtendSecs,
 		"make_instrumental": task.Instrumental,
+		"mv":                task.Model,
 	}
 	// 灵感模式
 	if task.Type == 1 {
@@ -134,7 +137,6 @@ func (s *Service) Create(task types.SunoTask) (RespVo, error) {
 	} else { // 自定义模式
 		reqBody["prompt"] = task.Lyrics
 		reqBody["tags"] = task.Tags
-		reqBody["mv"] = task.Model
 		reqBody["title"] = task.Title
 	}
 

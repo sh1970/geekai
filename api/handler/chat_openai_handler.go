@@ -21,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	req2 "github.com/imroc/req/v3"
 )
 
@@ -55,18 +56,16 @@ func (h *ChatHandler) sendOpenAiMessage(
 	req types.ApiRequest,
 	userVo vo.User,
 	ctx context.Context,
-	session *types.ChatSession,
-	role model.ChatRole,
-	prompt string,
-	ws *types.WsClient) error {
+	input ChatInput,
+	c *gin.Context) error {
 	promptCreatedAt := time.Now() // 记录提问时间
 	start := time.Now()
 	var apiKey = model.ApiKey{}
-	response, err := h.doRequest(ctx, req, session, &apiKey)
+	response, err := h.doRequest(ctx, req, input, &apiKey)
 	logger.Info("HTTP请求完成，耗时：", time.Since(start))
 	if err != nil {
 		if strings.Contains(err.Error(), "context canceled") {
-			return fmt.Errorf("用户取消了请求：%s", prompt)
+			return fmt.Errorf("用户取消了请求：%s", input.Prompt)
 		} else if strings.Contains(err.Error(), "no available key") {
 			return errors.New("抱歉😔😔😔，系统已经没有可用的 API KEY，请联系管理员！")
 		}
@@ -112,7 +111,7 @@ func (h *ChatHandler) sendOpenAiMessage(
 			}
 
 			if responseBody.Choices[0].FinishReason == "stop" && len(contents) == 0 {
-				utils.SendChunkMsg(ws, "抱歉😔😔😔，AI助手由于未知原因已经停止输出内容。")
+				pushMessage(c, "text", "抱歉😔😔😔，AI助手由于未知原因已经停止输出内容。")
 				break
 			}
 
@@ -140,7 +139,7 @@ func (h *ChatHandler) sendOpenAiMessage(
 				if res.Error == nil {
 					toolCall = true
 					callMsg := fmt.Sprintf("正在调用工具 `%s` 作答 ...\n\n", function.Label)
-					utils.SendChunkMsg(ws, callMsg)
+					pushMessage(c, "text", callMsg)
 					contents = append(contents, callMsg)
 				}
 				continue
@@ -163,7 +162,7 @@ func (h *ChatHandler) sendOpenAiMessage(
 						reasoning = true
 					}
 
-					utils.SendChunkMsg(ws, reasoningContent)
+					pushMessage(c, "text", reasoningContent)
 					contents = append(contents, reasoningContent)
 				} else if responseBody.Choices[0].Delta.Content != "" {
 					finalContent := responseBody.Choices[0].Delta.Content
@@ -172,14 +171,14 @@ func (h *ChatHandler) sendOpenAiMessage(
 						reasoning = false
 					}
 					contents = append(contents, utils.InterfaceToString(finalContent))
-					utils.SendChunkMsg(ws, finalContent)
+					pushMessage(c, "text", finalContent)
 				}
 			}
 		} // end for
 
 		if err := scanner.Err(); err != nil {
 			if strings.Contains(err.Error(), "context canceled") {
-				logger.Info("用户取消了请求：", prompt)
+				logger.Info("用户取消了请求：", input.Prompt)
 			} else {
 				logger.Error("信息读取出错：", err)
 			}
@@ -214,20 +213,20 @@ func (h *ChatHandler) sendOpenAiMessage(
 				errMsg = utils.InterfaceToString(apiRes.Data)
 				contents = append(contents, errMsg)
 			}
-			utils.SendChunkMsg(ws, errMsg)
+			pushMessage(c, "text", errMsg)
 		}
 
 		// 消息发送成功
 		if len(contents) > 0 {
 			usage := Usage{
-				Prompt:           prompt,
+				Prompt:           input.Prompt,
 				Content:          strings.Join(contents, ""),
 				PromptTokens:     0,
 				CompletionTokens: 0,
 				TotalTokens:      0,
 			}
 			message.Content = usage.Content
-			h.saveChatHistory(req, usage, message, session, role, userVo, promptCreatedAt, replyCreatedAt)
+			h.saveChatHistory(req, usage, message, input, userVo, promptCreatedAt, replyCreatedAt)
 		}
 	} else { // 非流式输出
 		var respVo OpenAIResVo
@@ -240,13 +239,10 @@ func (h *ChatHandler) sendOpenAiMessage(
 			return fmt.Errorf("解析响应失败：%v", body)
 		}
 		content := respVo.Choices[0].Message.Content
-		if strings.HasPrefix(req.Model, "o1-") {
-			content = fmt.Sprintf("AI思考结束，耗时：%d 秒。\n%s", time.Now().Unix()-session.Start, respVo.Choices[0].Message.Content)
-		}
-		utils.SendChunkMsg(ws, content)
-		respVo.Usage.Prompt = prompt
+		pushMessage(c, "text", content)
+		respVo.Usage.Prompt = input.Prompt
 		respVo.Usage.Content = content
-		h.saveChatHistory(req, respVo.Usage, respVo.Choices[0].Message, session, role, userVo, promptCreatedAt, time.Now())
+		h.saveChatHistory(req, respVo.Usage, respVo.Choices[0].Message, input, userVo, promptCreatedAt, time.Now())
 	}
 
 	return nil

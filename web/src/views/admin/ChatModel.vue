@@ -3,6 +3,12 @@
     <div class="handle-box">
       <el-input v-model="query.name" placeholder="模型名称" class="handle-input" />
 
+      <el-select v-model="query.type" placeholder="模型类型" class="handle-input" clearable>
+        <el-option v-for="v in modelTypes" :value="v.value" :label="v.label" :key="v.value">
+          {{ v.label }}
+        </el-option>
+      </el-select>
+
       <el-button :icon="Search" @click="fetchData">搜索</el-button>
       <el-button type="primary" :icon="Plus" @click="add">新增</el-button>
     </div>
@@ -25,20 +31,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="category" label="标签" />
+        <el-table-column prop="tag" label="标签" />
         <el-table-column prop="value" label="模型值">
           <template #default="scope">
             <span>{{ scope.row.value }}</span>
             <el-icon class="copy-model" :data-clipboard-text="scope.row.value">
               <DocumentCopy />
             </el-icon>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="模型描述" width="180">
-          <template #default="scope">
-            <el-tooltip :content="scope.row.description || ''" placement="top" :show-after="200">
-              <div class="description-cell">{{ scope.row.description }}</div>
-            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column prop="power" label="费率" />
@@ -79,7 +78,7 @@
       <el-form :model="item" label-width="120px" ref="formRef" :rules="rules">
         <el-form-item label="模型类型：" prop="type">
           <el-select v-model="item.type" placeholder="请选择模型类型">
-            <el-option v-for="v in type" :value="v.value" :label="v.label" :key="v.value">
+            <el-option v-for="v in modelTypes" :value="v.value" :label="v.label" :key="v.value">
               {{ v.label }}
             </el-option>
           </el-select>
@@ -92,8 +91,8 @@
           <el-input v-model="item.value" autocomplete="off" />
         </el-form-item>
 
-        <el-form-item label="模型标签" prop="category">
-          <el-input v-model="item.category" autocomplete="off" />
+        <el-form-item label="模型标签" prop="tag">
+          <el-input v-model="item.tag" autocomplete="off" />
         </el-form-item>
 
         <el-form-item label="消耗算力：" prop="power">
@@ -137,8 +136,8 @@
             />
           </el-form-item>
 
-          <el-form-item label="模型描述" prop="description">
-            <el-input v-model="item.description" autocomplete="off" />
+          <el-form-item label="模型简介" prop="desc">
+            <el-input v-model="item.desc" type="textarea" :rows="3" autocomplete="off" />
           </el-form-item>
 
           <el-form-item label="创意度：" prop="temperature">
@@ -237,7 +236,7 @@ const rules = reactive({
 })
 const loading = ref(true)
 const formRef = ref(null)
-const type = ref([
+const modelTypes = ref([
   { label: '聊天', value: 'chat' },
   { label: '绘图', value: 'img' },
   { label: '语音', value: 'tts' },
@@ -266,16 +265,18 @@ const fetchData = () => {
   httpGet('/api/admin/model/list', query.value)
     .then((res) => {
       if (res.data) {
-        // 初始化数据
-        const arr = res.data
-        for (let i = 0; i < arr.length; i++) {
-          arr[i].last_used_at = dateFormat(arr[i].last_used_at)
-        }
-        items.value = arr
+        res.data.forEach((item) => {
+          if (!item.options) {
+            item.options = {}
+          }
+          item.last_used_at = dateFormat(item.last_used_at)
+        })
+        items.value = res.data
       }
       loading.value = false
     })
-    .catch(() => {
+    .catch((e) => {
+      console.error(e)
       ElMessage.error('获取数据失败')
     })
 }
@@ -344,7 +345,7 @@ const add = function () {
 const edit = function (row) {
   title.value = '修改模型'
   showDialog.value = true
-  item.value = row
+  item.value = Object.assign({}, row)
 }
 
 const save = function () {
@@ -392,7 +393,7 @@ const remove = function (row) {
 </script>
 
 <style lang="stylus" scoped>
-@import "@/assets/css/admin/form.styl";
+@import "../../assets/css/admin/form.styl";
 .model-list {
 
   .handle-box {

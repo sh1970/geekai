@@ -100,6 +100,26 @@ func (s *AppServer) Run(db *gorm.DB) error {
 		&model.UserLoginLog{},
 		&model.DallJob{},
 	)
+	// 手动删除字段
+	if db.Migrator().HasColumn(&model.Order{}, "deleted_at") {
+		db.Migrator().DropColumn(&model.Order{}, "deleted_at")
+	}
+	if db.Migrator().HasColumn(&model.ChatItem{}, "deleted_at") {
+		db.Migrator().DropColumn(&model.ChatItem{}, "deleted_at")
+	}
+	if db.Migrator().HasColumn(&model.ChatMessage{}, "deleted_at") {
+		db.Migrator().DropColumn(&model.ChatMessage{}, "deleted_at")
+	}
+	if db.Migrator().HasColumn(&model.User{}, "chat_config") {
+		db.Migrator().DropColumn(&model.User{}, "chat_config")
+	}
+	if db.Migrator().HasColumn(&model.ChatModel{}, "category") {
+		db.Migrator().DropColumn(&model.ChatModel{}, "category")
+	}
+	if db.Migrator().HasColumn(&model.ChatModel{}, "description") {
+		db.Migrator().DropColumn(&model.ChatModel{}, "description")
+	}
+
 	logger.Info("Database tables migrated successfully")
 
 	// 统计安装信息

@@ -1,10 +1,28 @@
 <template>
   <div class="container media-page">
     <el-tabs v-model="activeName" @tab-change="handleChange">
-      <el-tab-pane v-for="media in mediaTypes" :key="media.name" :label="media.label" :name="media.name" v-loading="data[media.name].loading">
+      <el-tab-pane
+        v-for="media in mediaTypes"
+        :key="media.name"
+        :label="media.label"
+        :name="media.name"
+        v-loading="data[media.name].loading"
+      >
         <div class="handle-box">
-          <el-input v-model="data[media.name].query.username" placeholder="用户名" class="handle-input mr10" @keyup="search($event, media.name)" clearable />
-          <el-input v-model="data[media.name].query.prompt" placeholder="提示词" class="handle-input mr10" @keyup="search($event, media.name)" clearable />
+          <el-input
+            v-model="data[media.name].query.username"
+            placeholder="用户名"
+            class="handle-input mr10"
+            @keyup="search($event, media.name)"
+            clearable
+          />
+          <el-input
+            v-model="data[media.name].query.prompt"
+            placeholder="提示词"
+            class="handle-input mr10"
+            @keyup="search($event, media.name)"
+            clearable
+          />
           <el-date-picker
             v-model="data[media.name].query.created_at"
             type="daterange"
@@ -28,7 +46,10 @@
                     <div class="duration">
                       {{ formatTime(scope.row.duration) }}
                     </div>
-                    <button class="play" @click="playMusic(scope.row)">
+                    <button
+                      class="play flex justify-center items-center"
+                      @click="playMusic(scope.row)"
+                    >
                       <img src="/images/play.svg" alt="" />
                     </button>
                   </div>
@@ -37,12 +58,27 @@
                 <template #default="scope" v-if="media.previewComponent === 'VideoPreview'">
                   <div class="container">
                     <div v-if="scope.row.progress === 100">
-                      <video class="video" :src="replaceImg(scope.row.video_url)" preload="auto" loop="loop" muted="muted">您的浏览器不支持视频播放</video>
-                      <button class="play" @click="playVideo(scope.row)">
+                      <video
+                        class="video"
+                        :src="replaceImg(scope.row.video_url)"
+                        preload="auto"
+                        loop="loop"
+                        muted="muted"
+                      >
+                        您的浏览器不支持视频播放
+                      </video>
+                      <button
+                        class="play flex justify-center items-center"
+                        @click="playVideo(scope.row)"
+                      >
                         <img src="/images/play.svg" alt="" />
                       </button>
                     </div>
-                    <el-image :src="scope.row.cover_url" fit="cover" v-else-if="scope.row.progress > 100" />
+                    <el-image
+                      :src="scope.row.cover_url"
+                      fit="cover"
+                      v-else-if="scope.row.progress > 100"
+                    />
                     <generating message="正在生成视频" v-else />
                   </div>
                 </template>
@@ -59,13 +95,21 @@
                 <el-table-column prop="play_times" label="播放次数" />
                 <el-table-column label="歌词">
                   <template #default="scope">
-                    <el-button size="small" type="primary" plain @click="showLyric(scope.row)">查看歌词</el-button>
+                    <el-button size="small" type="primary" plain @click="showLyric(scope.row)"
+                      >查看歌词</el-button
+                    >
                   </template>
                 </el-table-column>
               </template>
               <el-table-column label="提示词" v-if="media.previewComponent === 'VideoPreview'">
                 <template #default="scope">
-                  <el-popover placement="top-start" title="提示词" :width="300" trigger="hover" :content="scope.row.prompt">
+                  <el-popover
+                    placement="top-start"
+                    title="提示词"
+                    :width="300"
+                    trigger="hover"
+                    :content="scope.row.prompt"
+                  >
                     <template #reference>
                       <span>{{ substr(scope.row.prompt, 20) }}</span>
                     </template>
@@ -74,7 +118,7 @@
               </el-table-column>
               <el-table-column label="创建时间">
                 <template #default="scope">
-                  <span>{{ dateFormat(scope.row["created_at"]) }}</span>
+                  <span>{{ dateFormat(scope.row['created_at']) }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="失败原因">
@@ -96,7 +140,10 @@
               </el-table-column>
               <el-table-column label="操作" width="180">
                 <template #default="scope">
-                  <el-popconfirm title="确定要删除当前记录吗?" @confirm="remove(scope.row, media.name)">
+                  <el-popconfirm
+                    title="确定要删除当前记录吗?"
+                    @confirm="remove(scope.row, media.name)"
+                  >
                     <template #reference>
                       <el-button size="small" type="danger">删除</el-button>
                     </template>
@@ -123,13 +170,25 @@
       </el-tab-pane>
     </el-tabs>
     <el-dialog v-model="showVideoDialog" title="视频预览">
-      <video style="width: 100%; max-height: 90vh" :src="currentVideoUrl" preload="auto" :autoplay="true" loop="loop" muted="muted">
+      <video
+        style="width: 100%; max-height: 90vh"
+        :src="currentVideoUrl"
+        preload="auto"
+        :autoplay="true"
+        loop="loop"
+        muted="muted"
+      >
         您的浏览器不支持视频播放
       </video>
     </el-dialog>
 
     <div class="music-player" v-if="showPlayer">
-      <music-player :songs="playList" ref="playerRef" :show-close="true" @close="showPlayer = false" />
+      <music-player
+        :songs="playList"
+        ref="playerRef"
+        :show-close="true"
+        @close="showPlayer = false"
+      />
     </div>
 
     <el-dialog v-model="showLyricDialog" title="歌词">
@@ -139,18 +198,19 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, ref } from "vue";
-import { httpGet, httpPost } from "@/utils/http";
-import { ElMessage } from "element-plus";
-import { dateFormat, formatTime, replaceImg, substr } from "@/utils/libs";
-import { Search } from "@element-plus/icons-vue";
-import MusicPlayer from "@/components/MusicPlayer.vue";
-import Generating from "@/components/ui/Generating.vue";
+import MusicPlayer from '@/components/MusicPlayer.vue'
+import Generating from '@/components/ui/Generating.vue'
+import { httpGet, httpPost } from '@/utils/http'
+import { dateFormat, formatTime, replaceImg, substr } from '@/utils/libs'
+import { Search } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import MarkdownIt from 'markdown-it'
+import { nextTick, onMounted, ref } from 'vue'
 
 const data = ref({
   suno: {
     items: [],
-    query: { prompt: "", username: "", created_at: [], page: 1, page_size: 15 },
+    query: { prompt: '', username: '', created_at: [], page: 1, page_size: 15 },
     total: 0,
     page: 1,
     pageSize: 10,
@@ -158,7 +218,7 @@ const data = ref({
   },
   luma: {
     items: [],
-    query: { prompt: "", username: "", created_at: [], page: 1, page_size: 15 },
+    query: { prompt: '', username: '', created_at: [], page: 1, page_size: 15 },
     total: 0,
     page: 1,
     pageSize: 10,
@@ -166,169 +226,169 @@ const data = ref({
   },
   keling: {
     items: [],
-    query: { prompt: "", username: "", created_at: [], page: 1, page_size: 15 },
+    query: { prompt: '', username: '', created_at: [], page: 1, page_size: 15 },
     total: 0,
     page: 1,
     pageSize: 10,
     loading: true,
   },
-});
+})
 
 const mediaTypes = [
   {
-    name: "suno",
-    label: "Suno音乐",
+    name: 'suno',
+    label: 'Suno音乐',
     fetchData: () => fetchSunoData(),
-    previewComponent: "MusicPreview",
+    previewComponent: 'MusicPreview',
   },
   {
-    name: "luma",
-    label: "Luma视频",
+    name: 'luma',
+    label: 'Luma视频',
     fetchData: () => fetchLumaData(),
-    previewComponent: "VideoPreview",
+    previewComponent: 'VideoPreview',
   },
   {
-    name: "keling",
-    label: "可灵视频",
+    name: 'keling',
+    label: '可灵视频',
     fetchData: () => fetchKelingData(),
-    previewComponent: "VideoPreview",
+    previewComponent: 'VideoPreview',
   },
-];
-const activeName = ref("suno");
-const playList = ref([]);
-const playerRef = ref(null);
-const showPlayer = ref(false);
-const showLyricDialog = ref(false);
-const lyrics = ref("");
-const showVideoDialog = ref(false);
-const currentVideoUrl = ref("");
+]
+const activeName = ref('suno')
+const playList = ref([])
+const playerRef = ref(null)
+const showPlayer = ref(false)
+const showLyricDialog = ref(false)
+const lyrics = ref('')
+const showVideoDialog = ref(false)
+const currentVideoUrl = ref('')
 
 onMounted(() => {
-  fetchSunoData();
-});
+  fetchSunoData()
+})
 
 const handleChange = (tab) => {
   switch (tab) {
-    case "suno":
-      fetchSunoData();
-      break;
-    case "luma":
-      fetchLumaData();
-      break;
-    case "keling":
-      fetchKelingData();
-      break;
+    case 'suno':
+      fetchSunoData()
+      break
+    case 'luma':
+      fetchLumaData()
+      break
+    case 'keling':
+      fetchKelingData()
+      break
   }
-};
+}
 
 // 搜索对话
 const search = (evt, tab) => {
   if (evt.keyCode === 13) {
-    handleChange(tab);
+    handleChange(tab)
   }
-};
+}
 
 // 获取数据
 const fetchSunoData = () => {
-  const d = data.value.suno;
-  d.query.page = d.page;
-  d.query.page_size = d.pageSize;
-  httpPost("/api/admin/media/suno", d.query)
+  const d = data.value.suno
+  d.query.page = d.page
+  d.query.page_size = d.pageSize
+  httpPost('/api/admin/media/suno', d.query)
     .then((res) => {
       if (res.data) {
-        d.items = res.data.items;
-        d.total = res.data.total;
-        d.page = res.data.page;
-        d.pageSize = res.data.page_size;
+        d.items = res.data.items
+        d.total = res.data.total
+        d.page = res.data.page
+        d.pageSize = res.data.page_size
       }
-      d.loading = false;
+      d.loading = false
     })
     .catch((e) => {
-      ElMessage.error("获取数据失败：" + e.message);
-    });
-};
+      ElMessage.error('获取数据失败：' + e.message)
+    })
+}
 
 const fetchLumaData = () => {
-  const d = data.value.luma;
-  d.query.page = d.page;
-  d.query.page_size = d.pageSize;
-  d.query.type = "luma";
-  httpPost("/api/admin/media/videos", d.query)
+  const d = data.value.luma
+  d.query.page = d.page
+  d.query.page_size = d.pageSize
+  d.query.type = 'luma'
+  httpPost('/api/admin/media/videos', d.query)
     .then((res) => {
       if (res.data) {
-        d.items = res.data.items;
-        d.total = res.data.total;
-        d.page = res.data.page;
-        d.pageSize = res.data.page_size;
+        d.items = res.data.items
+        d.total = res.data.total
+        d.page = res.data.page
+        d.pageSize = res.data.page_size
       }
-      d.loading = false;
+      d.loading = false
     })
     .catch((e) => {
-      ElMessage.error("获取数据失败：" + e.message);
-    });
-};
+      ElMessage.error('获取数据失败：' + e.message)
+    })
+}
 const fetchKelingData = () => {
-  const d = data.value.keling;
-  d.query.page = d.page;
-  d.query.page_size = d.pageSize;
-  d.query.type = "keling";
-  httpPost("/api/admin/media/videos", d.query)
+  const d = data.value.keling
+  d.query.page = d.page
+  d.query.page_size = d.pageSize
+  d.query.type = 'keling'
+  httpPost('/api/admin/media/videos', d.query)
     .then((res) => {
       if (res.data) {
-        d.items = res.data.items;
-        d.total = res.data.total;
-        d.page = res.data.page;
-        d.pageSize = res.data.page_size;
+        d.items = res.data.items
+        d.total = res.data.total
+        d.page = res.data.page
+        d.pageSize = res.data.page_size
       }
-      d.loading = false;
+      d.loading = false
     })
     .catch((e) => {
-      ElMessage.error("获取数据失败：" + e.message);
-    });
-};
+      ElMessage.error('获取数据失败：' + e.message)
+    })
+}
 
 const remove = function (row, tab) {
   httpGet(`/api/admin/media/remove?id=${row.id}&tab=${tab}`)
     .then(() => {
-      ElMessage.success("删除成功！");
-      handleChange(tab);
+      ElMessage.success('删除成功！')
+      handleChange(tab)
     })
     .catch((e) => {
-      ElMessage.error("删除失败：" + e.message);
+      ElMessage.error('删除失败：' + e.message)
     })
     .finally(() => {
       nextTick(() => {
         // data.value[tab].page = 1;
         // data.value[tab].pageSize = 10;
-        const mediaType = mediaTypes.find((type) => type.name === tab);
+        const mediaType = mediaTypes.find((type) => type.name === tab)
         if (mediaType && mediaType.fetchData) {
-          mediaType.fetchData();
+          mediaType.fetchData()
         }
-      });
-    });
-};
+      })
+    })
+}
 
 const playMusic = (item) => {
-  playList.value = [item];
-  showPlayer.value = true;
-  nextTick(() => playerRef.value.play());
-};
+  playList.value = [item]
+  showPlayer.value = true
+  nextTick(() => playerRef.value.play())
+}
 
 const playVideo = (item) => {
-  currentVideoUrl.value = replaceImg(item.video_url);
-  showVideoDialog.value = true;
-};
+  currentVideoUrl.value = replaceImg(item.video_url)
+  showVideoDialog.value = true
+}
 
-const md = require("markdown-it")({
+const md = MarkdownIt({
   breaks: true,
   html: true,
   linkify: true,
-});
+})
 
 const showLyric = (item) => {
-  showLyricDialog.value = true;
-  lyrics.value = md.render(item.prompt);
-};
+  showLyricDialog.value = true
+  lyrics.value = md.render(item.prompt)
+}
 </script>
 
 <style lang="stylus" scoped>

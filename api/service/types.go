@@ -113,7 +113,7 @@ Please remember, the final output must be the same language with user’s input.
    - What kinds of examples may need to be included, how many, and whether they are complex enough to benefit from placeholders.
 - Clarity and Conciseness: Use clear, specific language. Avoid unnecessary instructions or bland statements.
 - Formatting: Use markdown features for readability. DO NOT USE  CODE BLOCKS UNLESS SPECIFICALLY REQUESTED.
-- Preserve User Content: If the input task or prompt includes extensive guidelines or examples, preserve them entirely, or as closely as possible. If they are vague, consider breaking down into sub-steps. Keep any details, guidelines, examples, variables, or placeholders provided by the user.
+- Preserve User Prompt: If the input task or prompt includes extensive guidelines or examples, preserve them entirely, or as closely as possible. If they are vague, consider breaking down into sub-steps. Keep any details, guidelines, examples, variables, or placeholders provided by the user.
 - Constants: DO include constants in the prompt, as they are not susceptible to prompt injection. Such as guides, rubrics, and examples.
 - Output Format: Explicitly the most appropriate output format, in detail. This should include length and syntax (e.g. short sentence, paragraph, JSON, etc.)
 - For tasks outputting well-defined or structured data (classification, JSON, etc.) bias toward outputting a JSON.

@@ -248,6 +248,7 @@ func main() {
 		}),
 		fx.Invoke(func(s *core.AppServer, h *handler.ChatHandler) {
 			group := s.Engine.Group("/api/chat/")
+			group.Any("message", h.Chat)
 			group.GET("list", h.List)
 			group.GET("detail", h.Detail)
 			group.POST("update", h.Update)
@@ -518,11 +519,6 @@ func main() {
 		fx.Invoke(func(s *core.AppServer, h *handler.TestHandler) {
 			group := s.Engine.Group("/api/test")
 			group.Any("sse", h.PostTest, h.SseTest)
-		}),
-		fx.Provide(service.NewWebsocketService),
-		fx.Provide(handler.NewWebsocketHandler),
-		fx.Invoke(func(s *core.AppServer, h *handler.WebsocketHandler) {
-			s.Engine.Any("/api/ws", h.Client)
 		}),
 		fx.Provide(handler.NewPromptHandler),
 		fx.Invoke(func(s *core.AppServer, h *handler.PromptHandler) {

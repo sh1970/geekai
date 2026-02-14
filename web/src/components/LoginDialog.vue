@@ -13,7 +13,14 @@
         </div>
 
         <div class="block">
-          <el-input placeholder="请输入密码(8-16位)" maxlength="16" size="large" v-model="data.password" show-password autocomplete="off">
+          <el-input
+            placeholder="请输入密码(8-16位)"
+            maxlength="16"
+            size="large"
+            v-model="data.password"
+            show-password
+            autocomplete="off"
+          >
             <template #prefix>
               <el-icon>
                 <Lock />
@@ -24,7 +31,9 @@
 
         <el-row class="btn-row" :gutter="20">
           <el-col :span="24">
-            <el-button class="login-btn" type="primary" size="large" @click="submitLogin">登 录</el-button>
+            <el-button class="login-btn" type="primary" size="large" @click="submitLogin"
+              >登 录</el-button
+            >
           </el-col>
         </el-row>
 
@@ -33,7 +42,9 @@
             还没有账号？
             <el-button size="small" @click="login = false">注册</el-button>
 
-            <el-button type="info" class="forget" size="small" @click="showResetPass = true">忘记密码？</el-button>
+            <el-button type="info" class="forget" size="small" @click="showResetPass = true"
+              >忘记密码？</el-button
+            >
           </div>
           <div v-if="wechatLoginURL !== ''">
             <el-divider>
@@ -42,7 +53,11 @@
             <div class="c-login flex justify-center">
               <div class="p-2 w-full">
                 <a :href="wechatLoginURL">
-                  <el-button type="success" class="w-full" size="large" @click="setRoute(router.currentRoute.value.path)"
+                  <el-button
+                    type="success"
+                    class="w-full"
+                    size="large"
+                    @click="setRoute(router.currentRoute.value.path)"
                     ><i class="iconfont icon-wechat mr-2"></i> 微信登录
                   </el-button>
                 </a>
@@ -58,7 +73,13 @@
         <el-tabs v-model="activeName" class="demo-tabs">
           <el-tab-pane label="手机注册" name="mobile" v-if="enableMobile">
             <div class="block">
-              <el-input placeholder="手机号码" size="large" v-model="data.mobile" maxlength="11" autocomplete="off">
+              <el-input
+                placeholder="手机号码"
+                size="large"
+                v-model="data.mobile"
+                maxlength="11"
+                autocomplete="off"
+              >
                 <template #prefix>
                   <el-icon>
                     <Iphone />
@@ -69,7 +90,13 @@
             <div class="block">
               <el-row :gutter="10">
                 <el-col :span="12">
-                  <el-input placeholder="验证码" size="large" maxlength="30" v-model="data.code" autocomplete="off">
+                  <el-input
+                    placeholder="验证码"
+                    size="large"
+                    maxlength="30"
+                    v-model="data.code"
+                    autocomplete="off"
+                  >
                     <template #prefix>
                       <el-icon>
                         <Checked />
@@ -96,7 +123,13 @@
             <div class="block">
               <el-row :gutter="10">
                 <el-col :span="12">
-                  <el-input placeholder="验证码" size="large" maxlength="30" v-model="data.code" autocomplete="off">
+                  <el-input
+                    placeholder="验证码"
+                    size="large"
+                    maxlength="30"
+                    v-model="data.code"
+                    autocomplete="off"
+                  >
                     <template #prefix>
                       <el-icon>
                         <Checked />
@@ -112,7 +145,12 @@
           </el-tab-pane>
           <el-tab-pane label="用户名注册" name="username" v-if="enableUser">
             <div class="block">
-              <el-input placeholder="用户名" size="large" v-model="data.username" autocomplete="off">
+              <el-input
+                placeholder="用户名"
+                size="large"
+                v-model="data.username"
+                autocomplete="off"
+              >
                 <template #prefix>
                   <el-icon>
                     <Iphone />
@@ -124,7 +162,14 @@
         </el-tabs>
 
         <div class="block">
-          <el-input placeholder="请输入密码(8-16位)" maxlength="16" size="large" v-model="data.password" show-password autocomplete="off">
+          <el-input
+            placeholder="请输入密码(8-16位)"
+            maxlength="16"
+            size="large"
+            v-model="data.password"
+            show-password
+            autocomplete="off"
+          >
             <template #prefix>
               <el-icon>
                 <Lock />
@@ -134,7 +179,14 @@
         </div>
 
         <div class="block">
-          <el-input placeholder="重复密码(8-16位)" size="large" maxlength="16" v-model="data.repass" show-password autocomplete="off">
+          <el-input
+            placeholder="重复密码(8-16位)"
+            size="large"
+            maxlength="16"
+            v-model="data.repass"
+            show-password
+            autocomplete="off"
+          >
             <template #prefix>
               <el-icon>
                 <Lock />
@@ -144,7 +196,12 @@
         </div>
 
         <div class="block">
-          <el-input placeholder="邀请码(可选)" size="large" v-model="data.invite_code" autocomplete="off">
+          <el-input
+            placeholder="邀请码(可选)"
+            size="large"
+            v-model="data.invite_code"
+            autocomplete="off"
+          >
             <template #prefix>
               <el-icon>
                 <Message />
@@ -154,7 +211,9 @@
         </div>
 
         <div class="w-full">
-          <el-button class="login-btn w-full" type="primary" size="large" @click="submitRegister">注 册</el-button>
+          <el-button class="login-btn w-full" type="primary" size="large" @click="submitRegister"
+            >注 册</el-button
+          >
         </div>
 
         <div class="text text-sm flex justify-center items-center w-full pt-3">
@@ -188,193 +247,193 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
-import { httpGet, httpPost } from "@/utils/http";
-import { ElMessage } from "element-plus";
-import { setUserToken } from "@/store/session";
-import { validateEmail, validateMobile } from "@/utils/validate";
-import { Checked, Close, Iphone, Lock, Message } from "@element-plus/icons-vue";
-import SendMsg from "@/components/SendMsg.vue";
-import { arrayContains } from "@/utils/libs";
-import { getSystemInfo } from "@/store/cache";
-import Captcha from "@/components/Captcha.vue";
-import ResetPass from "@/components/ResetPass.vue";
-import { setRoute } from "@/store/system";
-import { useRouter } from "vue-router";
-import { useSharedStore } from "@/store/sharedata";
+import Captcha from '@/components/Captcha.vue'
+import ResetPass from '@/components/ResetPass.vue'
+import SendMsg from '@/components/SendMsg.vue'
+import { getSystemInfo } from '@/store/cache'
+import { setUserToken } from '@/store/session'
+import { useSharedStore } from '@/store/sharedata'
+import { setRoute } from '@/store/system'
+import { httpGet, httpPost } from '@/utils/http'
+import { arrayContains } from '@/utils/libs'
+import { validateEmail, validateMobile } from '@/utils/validate'
+import { Checked, Iphone, Lock, Message } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 // eslint-disable-next-line no-undef
 const props = defineProps({
   show: Boolean,
-});
-const showDialog = ref(false);
+})
+const showDialog = ref(false)
 watch(
   () => props.show,
   (newValue) => {
-    showDialog.value = newValue;
+    showDialog.value = newValue
   }
-);
+)
 
-const login = ref(true);
+const login = ref(true)
 const data = ref({
-  username: process.env.VUE_APP_USER,
-  password: process.env.VUE_APP_PASS,
-  mobile: "",
-  email: "",
-  repass: "",
-  code: "",
-  invite_code: "",
-});
-const enableMobile = ref(false);
-const enableEmail = ref(false);
-const enableUser = ref(false);
-const enableRegister = ref(true);
-const wechatLoginURL = ref("");
-const activeName = ref("");
-const wxImg = ref("/images/wx.png");
-const captchaRef = ref(null);
+  username: import.meta.env.VITE_USER,
+  password: import.meta.env.VITE_PASS,
+  mobile: '',
+  email: '',
+  repass: '',
+  code: '',
+  invite_code: '',
+})
+const enableMobile = ref(false)
+const enableEmail = ref(false)
+const enableUser = ref(false)
+const enableRegister = ref(true)
+const wechatLoginURL = ref('')
+const activeName = ref('')
+const wxImg = ref('/images/wx.png')
+const captchaRef = ref(null)
 // eslint-disable-next-line no-undef
-const emits = defineEmits(["hide", "success"]);
-const action = ref("login");
-const enableVerify = ref(false);
-const showResetPass = ref(false);
-const router = useRouter();
-const store = useSharedStore();
+const emits = defineEmits(['hide', 'success'])
+const action = ref('login')
+const enableVerify = ref(false)
+const showResetPass = ref(false)
+const router = useRouter()
+const store = useSharedStore()
 
 onMounted(() => {
-  const returnURL = `${location.protocol}//${location.host}/login/callback?action=login`;
-  httpGet("/api/user/clogin?return_url=" + returnURL)
+  const returnURL = `${location.protocol}//${location.host}/login/callback?action=login`
+  httpGet('/api/user/clogin?return_url=' + returnURL)
     .then((res) => {
-      wechatLoginURL.value = res.data.url;
+      wechatLoginURL.value = res.data.url
     })
     .catch((e) => {
-      console.log(e.message);
-    });
+      console.log(e.message)
+    })
 
   getSystemInfo()
     .then((res) => {
       if (res.data) {
-        const registerWays = res.data["register_ways"];
-        if (arrayContains(registerWays, "username")) {
-          enableUser.value = true;
-          activeName.value = "username";
+        const registerWays = res.data['register_ways']
+        if (arrayContains(registerWays, 'username')) {
+          enableUser.value = true
+          activeName.value = 'username'
         }
-        if (arrayContains(registerWays, "email")) {
-          enableEmail.value = true;
-          activeName.value = "email";
+        if (arrayContains(registerWays, 'email')) {
+          enableEmail.value = true
+          activeName.value = 'email'
         }
-        if (arrayContains(registerWays, "mobile")) {
-          enableMobile.value = true;
-          activeName.value = "mobile";
+        if (arrayContains(registerWays, 'mobile')) {
+          enableMobile.value = true
+          activeName.value = 'mobile'
         }
         // 是否启用注册
-        enableRegister.value = res.data["enabled_register"];
+        enableRegister.value = res.data['enabled_register']
         // 使用后台上传的客服微信二维码
-        if (res.data["wechat_card_url"] !== "") {
-          wxImg.value = res.data["wechat_card_url"];
+        if (res.data['wechat_card_url'] !== '') {
+          wxImg.value = res.data['wechat_card_url']
         }
-        enableVerify.value = res.data["enabled_verify"];
+        enableVerify.value = res.data['enabled_verify']
       }
     })
     .catch((e) => {
-      ElMessage.error("获取系统配置失败：" + e.message);
-    });
-});
+      ElMessage.error('获取系统配置失败：' + e.message)
+    })
+})
 
 const submit = (verifyData) => {
-  if (action.value === "login") {
-    doLogin(verifyData);
-  } else if (action.value === "register") {
-    doRegister(verifyData);
+  if (action.value === 'login') {
+    doLogin(verifyData)
+  } else if (action.value === 'register') {
+    doRegister(verifyData)
   }
-};
+}
 
 // 登录操作
 const submitLogin = () => {
   if (!data.value.username) {
-    return ElMessage.error("请输入用户名");
+    return ElMessage.error('请输入用户名')
   }
   if (!data.value.password) {
-    return ElMessage.error("请输入密码");
+    return ElMessage.error('请输入密码')
   }
   if (enableVerify.value) {
-    captchaRef.value.loadCaptcha();
-    action.value = "login";
+    captchaRef.value.loadCaptcha()
+    action.value = 'login'
   } else {
-    doLogin({});
+    doLogin({})
   }
-};
+}
 
 const doLogin = (verifyData) => {
-  data.value.key = verifyData.key;
-  data.value.dots = verifyData.dots;
-  data.value.x = verifyData.x;
-  httpPost("/api/user/login", data.value)
+  data.value.key = verifyData.key
+  data.value.dots = verifyData.dots
+  data.value.x = verifyData.x
+  httpPost('/api/user/login', data.value)
     .then((res) => {
-      setUserToken(res.data.token);
-      store.setIsLogin(true);
-      ElMessage.success("登录成功！");
-      emits("hide");
-      emits("success");
+      setUserToken(res.data.token)
+      store.setIsLogin(true)
+      ElMessage.success('登录成功！')
+      emits('hide')
+      emits('success')
     })
     .catch((e) => {
-      ElMessage.error("登录失败，" + e.message);
-    });
-};
+      ElMessage.error('登录失败，' + e.message)
+    })
+}
 
 // 注册操作
 const submitRegister = () => {
-  if (activeName.value === "username" && data.value.username === "") {
-    return ElMessage.error("请输入用户名");
+  if (activeName.value === 'username' && data.value.username === '') {
+    return ElMessage.error('请输入用户名')
   }
 
-  if (activeName.value === "mobile" && !validateMobile(data.value.mobile)) {
-    return ElMessage.error("请输入合法的手机号");
+  if (activeName.value === 'mobile' && !validateMobile(data.value.mobile)) {
+    return ElMessage.error('请输入合法的手机号')
   }
 
-  if (activeName.value === "email" && !validateEmail(data.value.email)) {
-    return ElMessage.error("请输入合法的邮箱地址");
+  if (activeName.value === 'email' && !validateEmail(data.value.email)) {
+    return ElMessage.error('请输入合法的邮箱地址')
   }
 
   if (data.value.password.length < 8) {
-    return ElMessage.error("密码的长度为8-16个字符");
+    return ElMessage.error('密码的长度为8-16个字符')
   }
   if (data.value.repass !== data.value.password) {
-    return ElMessage.error("两次输入密码不一致");
+    return ElMessage.error('两次输入密码不一致')
   }
 
-  if ((activeName.value === "mobile" || activeName.value === "email") && data.value.code === "") {
-    return ElMessage.error("请输入验证码");
+  if ((activeName.value === 'mobile' || activeName.value === 'email') && data.value.code === '') {
+    return ElMessage.error('请输入验证码')
   }
-  if (enableVerify.value && activeName.value === "username") {
-    captchaRef.value.loadCaptcha();
-    action.value = "register";
+  if (enableVerify.value && activeName.value === 'username') {
+    captchaRef.value.loadCaptcha()
+    action.value = 'register'
   } else {
-    doRegister({});
+    doRegister({})
   }
-};
+}
 
 const doRegister = (verifyData) => {
-  data.value.key = verifyData.key;
-  data.value.dots = verifyData.dots;
-  data.value.x = verifyData.x;
-  data.value.reg_way = activeName.value;
-  httpPost("/api/user/register", data.value)
+  data.value.key = verifyData.key
+  data.value.dots = verifyData.dots
+  data.value.x = verifyData.x
+  data.value.reg_way = activeName.value
+  httpPost('/api/user/register', data.value)
     .then((res) => {
-      setUserToken(res.data.token);
+      setUserToken(res.data.token)
       ElMessage.success({
-        message: "注册成功!",
+        message: '注册成功!',
         onClose: () => {
-          emits("hide");
-          emits("success");
+          emits('hide')
+          emits('success')
         },
         duration: 1000,
-      });
+      })
     })
     .catch((e) => {
-      ElMessage.error("注册失败，" + e.message);
-    });
-};
+      ElMessage.error('注册失败，' + e.message)
+    })
+}
 </script>
 
 <style lang="stylus">

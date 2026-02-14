@@ -209,20 +209,28 @@ func (h *ChatHandler) Messages(c *gin.Context) {
 func (h *ChatHandler) History(c *gin.Context) {
 	chatId := c.Query("chat_id") // 会话 ID
 	var items []model.ChatMessage
-	var messages = make([]vo.HistoryMessage, 0)
+	var messages = make([]vo.ChatMessage, 0)
 	res := h.DB.Where("chat_id = ?", chatId).Find(&items)
 	if res.Error != nil {
 		resp.ERROR(c, "No history message")
 		return
 	} else {
 		for _, item := range items {
-			var v vo.HistoryMessage
+			var v vo.ChatMessage
 			err := utils.CopyObject(item, &v)
+			if err != nil {
+				continue
+			}
+			// 解析内容
+			var content vo.MsgContent
+			err = utils.JsonDecode(item.Content, &content)
+			if err != nil {
+				content.Text = item.Content
+			}
+			v.Content = content
 			v.CreatedAt = item.CreatedAt.Unix()
 			v.UpdatedAt = item.UpdatedAt.Unix()
-			if err == nil {
-				messages = append(messages, v)
-			}
+			messages = append(messages, v)
 		}
 	}
 

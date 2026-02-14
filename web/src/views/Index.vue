@@ -34,6 +34,15 @@
               >登录/注册</el-button
             >
           </span>
+          <span v-if="isLogin">
+            <el-button
+              @click="logout"
+              class="btn-go animate__animated animate__pulse animate__infinite"
+              round
+            >
+              退出登录
+            </el-button>
+          </span>
         </div>
       </el-menu>
     </div>
@@ -75,17 +84,17 @@
 import FooterBar from '@/components/FooterBar.vue'
 import ThemeChange from '@/components/ThemeChange.vue'
 import { checkSession, getLicenseInfo, getSystemInfo } from '@/store/cache'
+import { removeUserToken } from '@/store/session'
 import { httpGet } from '@/utils/http'
-import { isMobile } from '@/utils/libs'
 import { ElMessage } from 'element-plus'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-if (isMobile()) {
-  router.push('/mobile/index')
-}
+// if (isMobile()) {
+//   router.push('/mobile/index')
+// }
 
 const title = ref('')
 const logo = ref('')
@@ -93,9 +102,9 @@ const slogan = ref('')
 const license = ref({ de_copy: true })
 
 const isLogin = ref(false)
-const docsURL = ref(process.env.VUE_APP_DOCS_URL)
-const githubURL = ref(process.env.VUE_APP_GITHUB_URL)
-const giteeURL = ref(process.env.VUE_APP_GITEE_URL)
+const docsURL = ref(import.meta.env.VITE_DOCS_URL)
+const githubURL = ref(import.meta.env.VITE_GITHUB_URL)
+const giteeURL = ref(import.meta.env.VITE_GITEE_URL)
 const navs = ref([])
 
 const iconMap = ref({
@@ -195,8 +204,19 @@ const rainbowColor = (index) => {
   const hue = (index * 40) % 360 // 每个字符间隔40度，形成彩虹色
   return `hsl(${hue}, 90%, 50%)` // 色调(hue)，饱和度(70%)，亮度(50%)
 }
+
+const logout = function () {
+  httpGet('/api/user/logout')
+    .then(() => {
+      removeUserToken()
+      router.push('/login')
+    })
+    .catch((e) => {
+      ElMessage.error('注销失败：' + e.message)
+    })
+}
 </script>
 
 <style lang="stylus" scoped>
-@import "@/assets/css/index.styl"
+@import '../assets/css/index.styl'
 </style>

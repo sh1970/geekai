@@ -186,7 +186,7 @@
       class="chat-dialog"
       style="--el-dialog-width: 60%"
     >
-      <div class="chat-box chat-page">
+      <div class="chat-box chat-page p-2">
         <div v-for="item in messages" :key="item.id">
           <chat-prompt v-if="item.type === 'prompt'" :data="item" />
           <chat-reply v-else-if="item.type === 'reply'" :read-only="true" :data="item" />
@@ -206,6 +206,8 @@ import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import hl from 'highlight.js'
 import 'highlight.js/styles/a11y-dark.css'
+import MarkdownIt from 'markdown-it'
+import mathjaxPlugin from 'markdown-it-mathjax3'
 import { onMounted, ref } from 'vue'
 
 // 变量定义
@@ -316,8 +318,7 @@ const removeMessage = function (row) {
     })
 }
 
-const mathjaxPlugin = require('markdown-it-mathjax3')
-const md = require('markdown-it')({
+const md = MarkdownIt({
   breaks: true,
   html: true,
   linkify: true,
@@ -325,7 +326,7 @@ const md = require('markdown-it')({
   highlight: function (str, lang) {
     if (lang && hl.getLanguage(lang)) {
       // 处理代码高亮
-      const preCode = hl.highlight(lang, str, true).value
+      const preCode = hl.highlight(str, { language: lang }).value
       // 将代码包裹在 pre 中
       return `<pre class="code-container"><code class="language-${lang} hljs">${preCode}</code></pre>`
     }

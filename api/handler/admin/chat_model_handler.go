@@ -40,8 +40,8 @@ func (h *ChatModelHandler) Save(c *gin.Context) {
 		Power       int               `json:"power"`
 		MaxTokens   int               `json:"max_tokens"`  // 最大响应长度
 		MaxContext  int               `json:"max_context"` // 最大上下文长度
-		Description string            `json:"description"` //模型描述
-		Category    string            `json:"category"`    //模型类别
+		Desc        string            `json:"desc"`        //模型描述
+		Tag         string            `json:"tag"`         //模型标签
 		Temperature float32           `json:"temperature"` // 模型温度
 		KeyId       int               `json:"key_id,omitempty"`
 		CreatedAt   int64             `json:"created_at"`
@@ -66,8 +66,8 @@ func (h *ChatModelHandler) Save(c *gin.Context) {
 	item.Power = data.Power
 	item.MaxTokens = data.MaxTokens
 	item.MaxContext = data.MaxContext
-	item.Description = data.Description
-	item.Category = data.Category
+	item.Desc = data.Desc
+	item.Tag = data.Tag
 	item.Temperature = data.Temperature
 	item.KeyId = uint(data.KeyId)
 	item.Type = data.Type
@@ -100,11 +100,15 @@ func (h *ChatModelHandler) List(c *gin.Context) {
 	session := h.DB.Session(&gorm.Session{})
 	enable := h.GetBool(c, "enable")
 	name := h.GetTrim(c, "name")
+	modelType := h.GetTrim(c, "type")
 	if enable {
 		session = session.Where("enabled", enable)
 	}
 	if name != "" {
 		session = session.Where("name LIKE ?", name+"%")
+	}
+	if modelType != "" {
+		session = session.Where("type", modelType)
 	}
 	var items []model.ChatModel
 	var cms = make([]vo.ChatModel, 0)

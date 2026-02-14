@@ -28,8 +28,11 @@ import { showImagePreview } from 'vant'
 import Thinking from '../Thinking.vue'
 const props = defineProps({
   content: {
-    type: String,
-    default: '',
+    type: Object,
+    default: {
+      text: '',
+      files: [],
+    },
   },
   orgContent: {
     type: String,
@@ -41,6 +44,9 @@ const props = defineProps({
   },
 })
 
+const content = computed(() => {
+  return props.content.text
+})
 const contentRef = ref(null)
 onMounted(() => {
   const imgs = contentRef.value.querySelectorAll('img')

@@ -147,7 +147,7 @@
                         type="info"
                         style="margin-left: 8px; flex-shrink: 0"
                       >
-                        {{ getSelectedModel()?.power }}算力
+                        {{ getSelectedModel() && getSelectedModel().power }}算力
                       </el-tag>
                     </div>
                   </el-button>
@@ -264,7 +264,12 @@
                   <welcome @send="autofillPrompt" />
                 </div>
                 <div v-for="item in chatData" :key="item.id" v-else>
-                  <chat-prompt v-if="item.type === 'prompt'" :data="item" :list-style="listStyle" />
+                  <chat-prompt
+                    v-if="item.type === 'prompt'"
+                    :data="item"
+                    :list-style="listStyle"
+                    @edit="editUserPrompt"
+                  />
                   <chat-reply
                     v-else-if="item.type === 'reply'"
                     :data="item"
@@ -315,7 +320,10 @@
 
                           <span class="tool-item-btn">
                             <el-tooltip class="box-item" effect="dark" content="上传附件">
-                              <file-select :user-id="loginUser?.id" @selected="insertFile" />
+                              <file-select
+                                :user-id="loginUser && loginUser.id"
+                                @selected="insertFile"
+                              />
                             </el-tooltip>
                           </span>
                         </div>
@@ -414,13 +422,15 @@ import {
   Share,
   VideoPause,
 } from '@element-plus/icons-vue'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
 import Clipboard from 'clipboard'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import 'highlight.js/styles/a11y-dark.css'
 import MarkdownIt from 'markdown-it'
 import emoji from 'markdown-it-emoji'
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { getUserToken } from '../store/session'
 
 const title = ref('GeekAI-智能助手')
 const logo = ref('')
@@ -694,153 +704,216 @@ onMounted(() => {
   })
 
   window.onresize = () => resizeElement()
-  store.addMessageHandler('chat', (data) => {
-    // 丢去非本频道和本客户端的消息
-    if (data.channel !== 'chat' || data.clientId !== getClientId()) {
-      return
+})
+
+// 初始化数据
+const initData = async () => {
+  try {
+    // 获取角色列表
+    const roleRes = await httpGet('/api/app/list')
+    roles.value = roleRes.data
+    if (roles.value.length > 0) {
+      roleId.value = roles.value[0].id
     }
 
-    if (data.type === 'error') {
-      ElMessage.error(data.body)
-      return
+    // 获取模型列表
+    const modelRes = await httpGet('/api/model/list')
+    models.value = modelRes.data
+    if (models.value.length > 0) {
+      modelID.value = models.value[0].id
     }
 
-    const chatRole = getRoleById(roleId.value)
-    if (isNewMsg.value && data.type !== 'end') {
-      const prePrompt = chatData.value[chatData.value.length - 1]?.content
-      isNewMsg.value = false
-      lineBuffer.value = data.body
-      const reply = chatData.value[chatData.value.length - 1]
-      if (reply) {
-        reply['content'] = lineBuffer.value
-      }
-    } else if (data.type === 'end') {
-      // 消息接收完毕
-      // 追加当前会话到会话列表
-      if (newChatItem.value !== null) {
-        newChatItem.value['title'] = tmpChatTitle.value
-        newChatItem.value['chat_id'] = chatId.value
-        chatList.value.unshift(newChatItem.value)
-        newChatItem.value = null // 只追加一次
-      }
+    // 获取用户信息
+    const user = await checkSession()
+    loginUser.value = user
+    isLogin.value = true
 
-      enableInput()
-      lineBuffer.value = '' // 清空缓冲
+    // 获取聊天列表
+    const chatRes = await httpGet('/api/chat/list')
+    allChats.value = chatRes.data
+    chatList.value = allChats.value
+    if (chatId.value) {
+      loadChatHistory(chatId.value)
+    }
+  } catch (error) {
+    if (error.response?.status === 401) {
+      isLogin.value = false
+    } else {
+      console.warn('初始化数据失败：' + error.message)
+    }
+  }
+}
 
-      // 获取 token
-      const reply = chatData.value[chatData.value.length - 1]
-      httpPost('/api/chat/tokens', {
-        text: '',
-        model: getModelValue(modelID.value),
-        chat_id: chatId.value,
-      })
-        .then((res) => {
-          reply['created_at'] = new Date().getTime()
-          reply['tokens'] = res.data
+// 发送 SSE 请求
+const sendSSERequest = async (message) => {
+  try {
+    await fetchEventSource('/api/chat/message', {
+      method: 'POST',
+      headers: {
+        Authorization: getUserToken(),
+      },
+      body: JSON.stringify(message),
+      openWhenHidden: true,
+      onopen(response) {
+        if (response.ok && response.status === 200) {
+          console.log('SSE connection opened')
+        } else {
+          throw new Error(`Failed to open SSE connection: ${response.status}`)
+        }
+      },
+      onmessage(msg) {
+        try {
+          const data = JSON.parse(msg.data)
+          if (data.type === 'error') {
+            ElMessage.error(data.body)
+            enableInput()
+            return
+          }
+
+          if (data.type === 'end') {
+            enableInput()
+            lineBuffer.value = '' // 清空缓冲
+
+            // 获取 token
+            const reply = chatData.value[chatData.value.length - 1]
+            httpPost('/api/chat/tokens', {
+              text: '',
+              model: getModelValue(modelID.value),
+              chat_id: chatId.value,
+            })
+              .then((res) => {
+                reply['created_at'] = new Date().getTime()
+                reply['tokens'] = res.data
+                // 将聊天框的滚动条滑动到最底部
+                nextTick(() => {
+                  document
+                    .getElementById('chat-box')
+                    .scrollTo(0, document.getElementById('chat-box').scrollHeight)
+                })
+              })
+              .catch(() => {})
+            isNewMsg.value = true
+            tmpChatTitle.value = message.prompt
+            return
+          }
+
+          if (data.type === 'text') {
+            if (isNewMsg.value) {
+              isNewMsg.value = false
+              lineBuffer.value = data.body
+              const reply = chatData.value[chatData.value.length - 1]
+              if (reply) {
+                reply['content'].text = lineBuffer.value
+              }
+            } else {
+              lineBuffer.value += data.body
+              const reply = chatData.value[chatData.value.length - 1]
+              if (reply) {
+                reply['content'].text = lineBuffer.value
+              }
+            }
+          }
+
           // 将聊天框的滚动条滑动到最底部
           nextTick(() => {
             document
               .getElementById('chat-box')
               .scrollTo(0, document.getElementById('chat-box').scrollHeight)
+            localStorage.setItem('chat_id', chatId.value)
           })
-        })
-        .catch(() => {})
-      isNewMsg.value = true
-    } else if (data.type === 'text') {
-      lineBuffer.value += data.body
-      const reply = chatData.value[chatData.value.length - 1]
-      if (reply) {
-        reply['content'] = lineBuffer.value
-      }
-    }
-    // 将聊天框的滚动条滑动到最底部
-    nextTick(() => {
-      document
-        .getElementById('chat-box')
-        .scrollTo(0, document.getElementById('chat-box').scrollHeight)
-      localStorage.setItem('chat_id', chatId.value)
+        } catch (error) {
+          console.error('Error processing message:', error)
+          enableInput()
+          ElMessage.error('消息处理出错，请重试')
+        }
+      },
+      onerror(err) {
+        console.error('SSE Error:', err)
+        enableInput()
+        ElMessage.error('连接已断开，请重试')
+      },
+      onclose() {
+        console.log('SSE connection closed')
+        enableInput()
+      },
     })
+  } catch (error) {
+    console.error('Failed to send message:', error)
+    enableInput()
+    ElMessage.error('发送消息失败，请重试')
+  }
+}
+
+// 发送消息
+const sendMessage = (messageId) => {
+  if (!isLogin.value) {
+    console.log('未登录')
+    store.setShowLoginDialog(true)
+    return
+  }
+
+  if (canSend.value === false) {
+    ElMessage.warning('AI 正在作答中，请稍后...')
+    return
+  }
+
+  if (prompt.value.trim().length === 0 || canSend.value === false) {
+    showMessageError('请输入要发送的消息！')
+    return false
+  }
+
+  // 追加消息
+  chatData.value.push({
+    type: 'prompt',
+    id: randString(32),
+    icon: loginUser.value.avatar,
+    content: {
+      text: prompt.value,
+      files: files.value,
+    },
+    model: getModelValue(modelID.value),
+    created_at: new Date().getTime() / 1000,
   })
 
-  // 初始化模型分类和分组
-  updateModelCategories()
-  updateGroupedModels()
-})
-
-onUnmounted(() => {
-  store.removeMessageHandler('chat')
-})
-// 初始化数据
-const initData = () => {
-  // 加载模型
-  httpGet('/api/model/list?type=chat')
-    .then((res) => {
-      models.value = res.data
-      if (!modelID.value) {
-        modelID.value = models.value[0].id
-      }
-      // 加载角色列表
-      httpGet(`/api/app/list/user`, { id: roleId.value })
-        .then((res) => {
-          roles.value = res.data
-          if (!roleId.value) {
-            roleId.value = roles.value[0]['id']
-          }
-
-          // 如果登录状态就创建对话连接
-          checkSession()
-            .then((user) => {
-              loginUser.value = user
-              isLogin.value = true
-              newChat()
-            })
-            .catch(() => {})
-        })
-        .catch((e) => {
-          ElMessage.error('获取聊天角色失败: ' + e.messages)
-        })
-    })
-    .catch((e) => {
-      ElMessage.error('加载模型失败: ' + e.message)
-    })
-
-  // 获取会话列表
-  httpGet('/api/chat/list')
-    .then((res) => {
-      if (res.data) {
-        chatList.value = res.data
-        allChats.value = res.data
-      }
-    })
-    .catch(() => {
-      ElMessage.error('加载会话列表失败！')
-    })
-
-  // 允许在输入框粘贴文件
-  inputRef.value.addEventListener('paste', (event) => {
-    const items = (event.clipboardData || window.clipboardData).items
-    for (let item of items) {
-      if (item.kind === 'file') {
-        const file = item.getAsFile()
-        const formData = new FormData()
-        formData.append('file', file)
-        loading.value = true
-        // 执行上传操作
-        httpPost('/api/upload', formData)
-          .then((res) => {
-            files.value.push(res.data)
-            ElMessage.success({ message: '上传成功', duration: 500 })
-            loading.value = false
-          })
-          .catch((e) => {
-            ElMessage.error('文件上传失败:' + e.message)
-            loading.value = false
-          })
-
-        break
-      }
-    }
+  // 添加空回复消息
+  const _role = getRoleById(roleId.value)
+  chatData.value.push({
+    chat_id: chatId,
+    role_id: roleId.value,
+    type: 'reply',
+    id: randString(32),
+    icon: _role['icon'],
+    content: {
+      text: '',
+      files: [],
+    },
   })
+
+  nextTick(() => {
+    document
+      .getElementById('chat-box')
+      .scrollTo(0, document.getElementById('chat-box').scrollHeight)
+  })
+
+  showHello.value = false
+  disableInput(false)
+
+  // 异步发送 SSE 请求
+  sendSSERequest({
+    user_id: loginUser.value.id,
+    role_id: roleId.value,
+    model_id: modelID.value,
+    chat_id: chatId.value,
+    prompt: prompt.value,
+    tools: toolSelected.value,
+    stream: stream.value,
+    files: files.value,
+    last_msg_id: messageId,
+  })
+
+  prompt.value = ''
+  files.value = []
+  row.value = 1
 }
 
 const getRoleById = function (rid) {
@@ -854,7 +927,6 @@ const getRoleById = function (rid) {
 
 const resizeElement = function () {
   chatListHeight.value = window.innerHeight - 240
-  // chatBoxHeight.value = window.innerHeight;
   mainWinHeight.value = window.innerHeight - 50
   chatBoxHeight.value = window.innerHeight - 101 - 82 - 38
 }
@@ -1036,85 +1108,6 @@ const autofillPrompt = (text) => {
   inputRef.value.focus()
   sendMessage()
 }
-// 发送消息
-const sendMessage = function () {
-  if (!isLogin.value) {
-    console.log('未登录')
-    store.setShowLoginDialog(true)
-    return
-  }
-
-  if (store.socket.conn.readyState !== WebSocket.OPEN) {
-    ElMessage.warning('连接断开，正在重连...')
-    return
-  }
-
-  if (canSend.value === false) {
-    ElMessage.warning('AI 正在作答中，请稍后...')
-    return
-  }
-
-  if (prompt.value.trim().length === 0 || canSend.value === false) {
-    showMessageError('请输入要发送的消息！')
-    return false
-  }
-  // 如果携带了文件，则串上文件地址
-  let content = prompt.value
-  if (files.value.length > 0) {
-    content += files.value.map((file) => file.url).join(' ')
-  }
-  // else if (files.value.length > 1) {
-  //   showMessageError("当前只支持上传一个文件！");
-  //   return false;
-  // }
-  // 追加消息
-  chatData.value.push({
-    type: 'prompt',
-    id: randString(32),
-    icon: loginUser.value.avatar,
-    content: content,
-    model: getModelValue(modelID.value),
-    created_at: new Date().getTime() / 1000,
-  })
-  // 添加空回复消息
-  const _role = getRoleById(roleId.value)
-  chatData.value.push({
-    chat_id: chatId,
-    role_id: roleId.value,
-    type: 'reply',
-    id: randString(32),
-    icon: _role['icon'],
-    content: '',
-  })
-
-  nextTick(() => {
-    document
-      .getElementById('chat-box')
-      .scrollTo(0, document.getElementById('chat-box').scrollHeight)
-  })
-
-  showHello.value = false
-  disableInput(false)
-  store.socket.conn.send(
-    JSON.stringify({
-      channel: 'chat',
-      type: 'text',
-      body: {
-        role_id: roleId.value,
-        model_id: modelID.value,
-        chat_id: chatId.value,
-        content: content,
-        tools: toolSelected.value,
-        stream: stream.value,
-      },
-    })
-  )
-  tmpChatTitle.value = content
-  prompt.value = ''
-  files.value = []
-  row.value = 1
-  return true
-}
 
 const clearAllChats = function () {
   ElMessageBox.confirm('清除所有对话?此操作不可撤销！', '警告', {
@@ -1157,7 +1150,10 @@ const loadChatHistory = function (chatId) {
           type: 'reply',
           id: randString(32),
           icon: _role['icon'],
-          content: _role['hello_msg'],
+          content: {
+            text: _role['hello_msg'],
+            files: [],
+          },
         })
         return
       }
@@ -1181,6 +1177,7 @@ const loadChatHistory = function (chatId) {
     })
 }
 
+// 停止生成
 const stopGenerate = function () {
   showStopGenerate.value = false
   httpGet('/api/chat/stop?session_id=' + getClientId()).then(() => {
@@ -1189,30 +1186,100 @@ const stopGenerate = function () {
 }
 
 // 重新生成
-const reGenerate = function (prompt) {
-  disableInput(false)
-  const text = '重新回答下述问题：' + prompt
-  // 追加消息
-  chatData.value.push({
-    type: 'prompt',
-    id: randString(32),
-    icon: loginUser.value.avatar,
-    content: text,
+const reGenerate = function (messageId) {
+  // 恢复发送按钮状态
+  canSend.value = true
+  showStopGenerate.value = false
+  console.log(messageId)
+
+  chatData.value = chatData.value.filter((item) => item.id < messageId)
+  // 保存用户消息内容，填入输入框
+  const userPrompt = chatData.value[chatData.value.length - 1].content.text
+  // 删除用户消息
+  const lastMessage = chatData.value.pop()
+  // 填入输入框
+  prompt.value = userPrompt
+  sendMessage(lastMessage.id)
+  // 将光标定位到输入框并聚焦
+  nextTick(() => {
+    if (inputRef.value) {
+      inputRef.value.focus()
+      // 触发输入事件以更新文本高度
+      onInput({ keyCode: null })
+    }
   })
-  store.socket.conn.send(
-    JSON.stringify({
-      channel: 'chat',
-      type: 'text',
-      body: {
+}
+
+// 编辑用户消息
+const editUserPrompt = function (messageId) {
+  // 找到要编辑的消息及其索引
+  let messageIndex = -1
+  let messageContent = ''
+
+  for (let i = 0; i < chatData.value.length; i++) {
+    if (chatData.value[i].id === messageId) {
+      messageIndex = i
+      messageContent = chatData.value[i].content
+      break
+    }
+  }
+
+  if (messageIndex === -1) return
+
+  // 弹出编辑对话框
+  ElMessageBox.prompt('', '编辑消息', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    inputValue: messageContent,
+    inputType: 'textarea',
+    customClass: 'edit-prompt-dialog',
+    roundButton: true,
+  })
+    .then(({ value }) => {
+      if (value.trim() === '') {
+        ElMessage.warning('消息内容不能为空')
+        return
+      }
+
+      // 更新用户消息
+      chatData.value[messageIndex].content = value
+
+      // 移除该消息之后的所有消息
+      chatData.value = chatData.value.slice(0, messageIndex + 1)
+
+      // 添加空回复消息
+      const _role = getRoleById(roleId.value)
+      chatData.value.push({
+        chat_id: chatId,
         role_id: roleId.value,
-        model_id: modelID.value,
-        chat_id: chatId.value,
-        content: text,
-        tools: toolSelected.value,
-        stream: stream.value,
-      },
+        type: 'reply',
+        id: randString(32),
+        icon: _role['icon'],
+        content: '',
+      })
+
+      disableInput(false)
+
+      // 发送编辑后的消息
+      store.socket.conn.send(
+        JSON.stringify({
+          channel: 'chat',
+          type: 'text',
+          body: {
+            role_id: roleId.value,
+            model_id: modelID.value,
+            chat_id: chatId.value,
+            content: value,
+            tools: toolSelected.value,
+            stream: stream.value,
+            edit_message: true,
+          },
+        })
+      )
     })
-  )
+    .catch(() => {
+      // 取消编辑
+    })
 }
 
 const chatName = ref('')
@@ -1296,11 +1363,11 @@ const realtimeChat = () => {
 </script>
 
 <style scoped lang="stylus">
-@import "@/assets/css/chat-plus.styl"
+@import '../assets/css/chat-plus.styl'
 </style>
 
 <style lang="stylus">
-@import '@/assets/css/markdown/vue.css';
+@import '../assets/css/markdown/vue.css';
 .notice-dialog {
   .el-dialog__header {
     padding-bottom 0
